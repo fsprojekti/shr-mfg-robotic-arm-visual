@@ -46,7 +46,7 @@ const Move = (x,y,z) => {
   req.end()
 }
 
-const suction = (state) => {
+const suction =async (state) => {
   const req =  http.request({
     hostname: config.roboticArmIpAddress,
     path: `/basic/suction?msg={"data":%20${state}}`,

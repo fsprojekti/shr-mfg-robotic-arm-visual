@@ -1,5 +1,3 @@
-let robot_busy = true
-
 let task_queue = []
 
 function tasks(offerId, mode) {
@@ -16,4 +14,4 @@ const dispatch = (offerId, mode) => {
 dispatch(2,"load")
 console.log(task_queue[0])  */
 
-module.exports = { robot_busy, task_queue}
+module.exports = { task_queue}

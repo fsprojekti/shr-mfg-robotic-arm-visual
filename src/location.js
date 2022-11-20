@@ -1,6 +1,6 @@
 const {MoveTo, Move, suction, getState} = require("./http-API")
 
-const package_height = 20
+const package_height = 12
 const Load_location = {x:-75, y:-75}
 const Unload_location = {x:150, y:-150}
 const reset_location = {x:-150, y:38, z:200}
@@ -9,6 +9,7 @@ dock_location[1] = {x:-75, y:-150, storage:[{offerId: 1},{offerId:3}]}
 dock_location[2] = {x:0, y:-150, storage:[{offerId:5}]}
 dock_location[3] = {x:75, y:-150, storage:[{offerId: 2}]}
 dock_location[4] = {x:150, y:-150, storage:[]}
+temp_array = []
 
 
 //order LOW to HIGH --> storage level
@@ -44,31 +45,40 @@ const storage_location = () => {
     return getIndex()
 }
 
-console.log(storage_location())
+//console.log(storage_location())
 
 //console.log(select_storage_location()[1])
 
-const Move_Load_location = () => {
-    MoveTo(Load_location.x, Load_location.y, 60)
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+
+const Move_Load_location =async () => {
+    await MoveTo(Load_location.x, Load_location.y, 60)
+    await delay(3000)
 }
 
-const Move_Unload_location = () => {
+const Move_Unload_location =async () => {
     MoveTo(Unload_location.x, Unload_location.y, 60)
+    await delay(3000)
 }
 
-const Move_Reset_location = () => {
+const Move_Reset_location =async () => {
     MoveTo(reset_location.x, reset_location.y, reset_location)
+    await delay(3000)
 }
 
-const Move_dock_location = (i,mode) => {
+const Move_dock_location =async (i,mode) => {
     let z
     if(mode === "load"){
-        z = (dock_location[i].storage.length * package_height) + package_height + 2
+        z = (dock_location[i].storage.length * package_height) + package_height + 2 + 60
 }
     if(mode === "unload"){
-        z = (dock_location[i].storage.length * package_height)
+        z = (dock_location[i].storage.length * package_height) + 60
     }
     MoveTo(dock_location[i].x, dock_location[i].y, z)
+    await delay(3000)
 } 
 
-module.exports = {Move_Load_location, Move_Unload_location, Move_dock_location, dock_location, storage_location, Move_Reset_location}
+module.exports = {Move_Load_location, Move_Unload_location, Move_dock_location, dock_location, storage_location, Move_Reset_location, temp_array}

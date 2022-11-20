@@ -66,8 +66,15 @@ const getCenter = async () => {
 
   await snapshot();
   let center = await imageProcessing();
-  console.log("center：" + JSON.stringify(center));
-  return JSON.stringify(center)
+  console.log("center_pixel：" + JSON.stringify(center));
+  var dx_center = (center.x - (640/2)) * 0.178
+  var dy_center = (center.y - (480/2)) * 0.156 * -1 + 47
+  // 1 pixel = 0.178 mm 
+  // 47 --> offset camera from robot
+  var d = {x:dx_center, y:dy_center}
+  console.log("dx_center :",dx_center)
+  console.log("dy_center :",dy_center) 
+  return d
 }
 
 function loadOpenCV() {
