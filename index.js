@@ -7,6 +7,8 @@ const circle = require("./src/visual")
 const { json } = require("express")
 const {Move_Load_location, Move_Unload_location,
       Move_dock_location, dock_location}  = require("./src/location")
+const {robot_auto} = require("./src/motion")
+const {task_queue, dispatch} = require("./src/task")
 
 
 const app = express()
@@ -15,7 +17,7 @@ const io = socketio(server)
 
 app.use(express.static(path.join(__dirname, "public")))
 
-let x, y, z, suction_state, state_data
+let x, y, z, suction_state, state_data, start, offerId_client
 
 io.on("connection",async (socket) => {
     
@@ -31,6 +33,17 @@ io.on("connection",async (socket) => {
         z = state_data.z
     })
 
+    // start
+    socket.on("start", () => {
+        start = true
+        console.log("start state:", start)
+    })
+
+    //stop
+    socket.on("stop", () => {
+        start = false
+        console.log("start state:", start)
+    })
 
     //get current state robot
     socket.on("getState", (message, callback) => {
@@ -69,6 +82,7 @@ io.on("connection",async (socket) => {
         callback()
     })
 
+    // on off suction
     socket.on("suction", (message,callback) => {
         suction_state = message
         console.log("suction:", suction_state.toString())
@@ -76,13 +90,75 @@ io.on("connection",async (socket) => {
         callback()
     })
 
-    socket.on("img_proces",async (message, callback) => {
-        console.log(message)
+    // get center package
+    socket.on("img_proces",async (callback) => {
         await circle.getCenter()
         await socket.emit("proces_done", "Done")
         callback()
     })
 
+    socket.on("dispath_w_t", (message,callback) => {
+        offerId_client = message
+        console.log(offerId_client)
+        dispatch(offerId_client,"unload")
+        console.log(task_queue)
+        callback()
+    })
+    socket.on("store_t_w", (message,callback) => {
+        offerId_client = message
+        console.log(offerId_client)
+        dispatch(offerId_client,"load")
+        console.log(task_queue)
+        callback()
+    })
+
+    while(start === true) {
+        robot_auto()
+    }
+
+
+})
+
+app.get(`/dock`, (req,res) => {
+    if(!req.query.address || req.query.address > 4){
+        return res.send({
+            error: "It is no location"
+        })}
+    else if(req.query.address !== undefined && req.query.level === undefined){
+        res.send(dock_location[req.query.address])
+    }
+    else if(req.query.address !== undefined && req.query.level !== undefined){
+        if(dock_location[req.query.address].storage[req.query.level - 1] === undefined){
+            return res.send({
+                error: "Here is no package."
+            })
+        }
+        res.send(dock_location[req.query.address].storage[req.query.level - 1])
+    }
+})
+
+app.get("/task", (req,res) => {
+    res.send(task_queue)
+})
+
+app.get("/dispatch", (req,res) => {
+    if(req.query.OfferId === undefined ||req.query.OfferId === "" && req.query.mode === undefined || req.query.mode === undefined){
+        return res.send("Plsese set offer Id and dispath mode.")
+    } else if (req.query.OfferId !== undefined && req.query.mode === undefined || req.query.mode === "") {
+        return res.send("Plese set dispath mode.")
+    } else if ( req.query.OfferId === undefined || req.query.OfferId === "" && req.query.mode !== undefined ){
+        return res.send("Plese set offer Id.")
+    }
+    for(var i=0;i<=task_queue.length-1;i++){
+        var temp_offerId = task_queue[i].offerId
+        if(req.query.OfferId === temp_offerId){
+            return res.send(`Offer Id: ${temp_offerId} is already in task queue`)
+        }
+    }
+    var disapath_mode = req.query.mode.toString()
+    dispatch(req.query.OfferId, disapath_mode)
+    console.log(task_queue)
+    res.send(task_queue)
 })
 
 server.listen(3000, () => {

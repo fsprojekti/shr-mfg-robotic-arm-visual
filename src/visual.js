@@ -3,17 +3,34 @@ const { JSDOM } = require('jsdom');
 const { writeFileSync} = require("fs");
 const path = require('path');
 const configIp = require("../config.json")
-
+const axios = require("axios")
+const fs = require("fs")
 const puppeteer = require('puppeteer');
-const { config } = require('process');
+const {getState, Move} = require("./http-API");
+const {delay} = require("./location");
 
+
+const url = 'http://'+configIp.roboticArmIpAddress+':8080/snapshot?topic=/usb_cam/image_rect_color'
 const file_path = path.resolve(__dirname,"../public/image/input.jpg") 
 const file_path_out = path.resolve(__dirname,"../public/image/output.jpg")
 
 installDOM();
 loadOpenCV(); 
 
-async function snapshot() {
+/*const download_image =async (url, image_path) => {
+  axios({url, responseType: 'stream'}).then(
+    response => {
+      new Promise((resolve,reject) => {
+        response.data
+        .pipe(fs.createWriteStream(image_path))
+        .on('finish',() => resolve())
+        .on('error', e => reject(e))
+      })
+    }
+  )
+}*/
+
+ async function snapshot() {
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
   await page.setViewport({ // 设置视窗大小
@@ -25,23 +42,23 @@ async function snapshot() {
   await page.screenshot({path: file_path }); // path: 截屏文件保存路径
 
   await browser.close();
-}
+}  
 
 const imageProcessing = async () => {
   try{
-    let x;
-    let y;   
+    var x =0;
+    var y = 0;   
     const image = await loadImage(file_path);
     let src = await cv.imread(image);
     let dst = await cv.Mat.zeros(src.rows, src.cols, cv.CV_8U);
     let circles = await new cv.Mat();
-    let color = await new cv.Scalar(255, 255, 255);
+    let color = await new cv.Scalar(255, 0,0);
     await cv.cvtColor(src, src, cv.COLOR_RGB2GRAY, 0);
     /* let low = new cv.Mat(src.rows, src.cols, src.type(), [0, 43, 46, 0]);
     let high = new cv.Mat(src.rows, src.cols, src.type(), [10, 255,255, 255]);
     cv.inRange(src, low, high, src); */
     await cv.HoughCircles(src, circles, cv.HOUGH_GRADIENT,
-                    1, 300, 75, 30, 135, 155);
+                    1, 300, 25, 40, 75, 140);
     // draw circles
     for (let i = 0; i < circles.cols; ++i) {
         x = circles.data32F[i * 3];
@@ -63,18 +80,41 @@ const imageProcessing = async () => {
 }
 
 const getCenter = async () => {
+  var curent_x = 0,curent_y = 0,o =0
+  getState( (d) => {
+    //console.log(d)
+    //console.log(state_data)
+    curent_x = d.x
+    curent_y = d.y
+})
+  await delay(200)
+  await snapshot() 
+  /*await download_image(url,file_path)*/
+  
+  o = Math.atan(curent_y *-1/curent_x)
 
-  await snapshot();
-  let center = await imageProcessing();
+  let center = await imageProcessing()
   console.log("center_pixel：" + JSON.stringify(center));
-  var dx_center = (center.x - (640/2)) * 0.178
-  var dy_center = (center.y - (480/2)) * 0.156 * -1 + 47
-  // 1 pixel = 0.178 mm 
-  // 47 --> offset camera from robot
-  var d = {x:dx_center, y:dy_center}
-  console.log("dx_center :",dx_center)
-  console.log("dy_center :",dy_center) 
+  var dx_center = ((640/2) - center.x) * 0.147
+  var dy_center = ((480/2) - center.y) * 0.196
+  var d = {
+    x: dx_center * Math.cos(o) + dy_center * Math.sin(o)  ,  // +dy
+    y: dx_center * Math.sin(o) - dy_center * Math.cos(o) } // -dy
+    console.log("first angle :",o*180/Math.PI)
+    console.log(d)
   return d
+}
+
+const offsetToll = async () => {
+  var curent_x,curent_y,o
+  await getState( (d) => {
+    curent_x = d.x
+    curent_y = d.y
+})
+  await delay(200)    
+  o =  Math.atan(curent_y*-1/curent_x)
+  console.log("midleware angle",o*180/Math.PI)
+  Move(Math.cos(o)*49, (-1)* Math.sin(o)*55.5, 0)
 }
 
 function loadOpenCV() {
@@ -96,4 +136,4 @@ function loadOpenCV() {
     global.HTMLImageElement = Image;
   }
 
-  module.exports = {getCenter}
+  module.exports = {getCenter,offsetToll}

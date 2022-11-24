@@ -4,7 +4,7 @@ const config = require("../config.json")
 const axios = require("axios")
 
 
-const MoveTo = (x,y,z) => {
+const MoveTo =async (x,y,z) => {
   const req =  http.request({
     hostname: config.roboticArmIpAddress,
     path: `/basic/moveTo?msg={"x":%20${x},%20"y":%20${y},%20"z":%20${z}}`,
@@ -25,7 +25,7 @@ const MoveTo = (x,y,z) => {
   req.end()
 }
 
-const Move = (x,y,z) => {
+const Move =async (x,y,z) => {
   const req =  http.request({
     hostname: config.roboticArmIpAddress,
     path: `/basic/move?msg={"x":%20${x},%20"y":%20${y},%20"z":%20${z}}`,
@@ -68,12 +68,12 @@ const suction =async (state) => {
 
 }
 
-const getState = (cb) => {
+const getState = async (cb) => {
   // call /basic/state API endpoint
   axios.get('http://' + config.roboticArmIpAddress+':'+config.Port + '/basic/state')
-      .then(function (response) {
+      .then(async function (response) {
           //console.log("/basic/state response received, data:" + JSON.stringify(response.data));
-          cb(response.data)
+          await cb(response.data)
       })
       .catch(function (error) {
           console.error("Error calling /basic/state API endpoint.");

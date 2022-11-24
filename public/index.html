@@ -8,9 +8,12 @@
         }
         form{
             position: absolute;
-            left: 600px;
-            top: 100px;
+            right:30%;
+            top: 50px;
 
+        }
+        table, th, td {
+            border:1px solid black;
         }
     </style>
     
@@ -21,6 +24,13 @@
     <div>
         <button id="getState">Get current state robot</button>
     </div>
+    <div>
+        <div>Dispath from Warehouse to transport</div>
+        <input id="offerId" type="number" placeholder="offer Id">
+        <button id="dispath_w_t">dispath</button>
+        <button id="store">store</button>
+    </div>
+    <div><p> </p></div>
     <div class="x">
         <input id="x-input" type="number" placeholder="x">
         <button id="x-botton">send</button>
@@ -38,10 +48,44 @@
     </div>
     <p></p>
     <button id="img_proces">image processing</button>
+    <p></p>
     <img id="image" src="././image/input.jpg">
 
     <form>
-        <div>offerId</div>
+        <div>
+            <button id="start_auto">Start</button>
+            <button id="stop_auto">Stop</button>
+        </div>
+        <div>
+            <table style="width: 100%;">
+                 <tr>
+                    <th><a href="/dock?address=1">Dock 1</a></th>
+                    <th><a href="/dock?address=2">Dock 2</a></th>
+                    <th><a href="/dock?address=3">Dock 3</a></th>
+                    <th><a href="/dock?address=4">Dock 4</a></th>
+                </tr>
+                <tr>
+                    <th><a href="/dock?address=1&level=1">level 1</a></th>
+                    <th><a href="/dock?address=2&level=1">level 1</a></th>
+                    <th><a href="/dock?address=3&level=1">level 1</a></th>
+                    <th><a href="/dock?address=4&level=1">level 1</a></th>
+                </tr>
+                <tr>
+                    <th><a href="/dock?address=1&level=2">level 2</a></th>
+                    <th><a href="/dock?address=2&level=2">level 2</a></th>
+                    <th><a href="/dock?address=3&level=2">level 2</a></th>
+                    <th><a href="/dock?address=4&level=2">level 2</a></th>
+                </tr>
+                <tr>
+                    <th><a href="/dock?address=1&level=3">level 3</a></th>
+                    <th><a href="/dock?address=2&level=3">level 3</a></th>
+                    <th><a href="/dock?address=3&level=3">level 3</a></th>
+                    <th><a href="/dock?address=4&level=3">level 3</a></th>
+                </tr>
+            </table>
+            <div><p> </p></div>
+            <a href="/task">task queue</a>
+        </div>
     </form>
     
     <script src="/socket.io/socket.io.js"></script>
