@@ -17,7 +17,7 @@ const file_path_out = path.resolve(__dirname,"../public/image/output.jpg")
 installDOM();
 loadOpenCV(); 
 
-/*const download_image =async (url, image_path) => {
+const download_image =async (url, image_path) => {
   axios({url, responseType: 'stream'}).then(
     response => {
       new Promise((resolve,reject) => {
@@ -28,7 +28,7 @@ loadOpenCV();
       })
     }
   )
-}*/
+}
 
  async function snapshot() {
   const browser = await puppeteer.launch();
@@ -95,8 +95,8 @@ const getCenter = async () => {
 
   let center = await imageProcessing()
   console.log("center_pixel：" + JSON.stringify(center));
-  var dx_center = ((640/2) - center.x) * 0.147
-  var dy_center = ((480/2) - center.y) * 0.196
+  var dx_center = ((640/2) - center.x) * 0.15
+  var dy_center = ((480/2) - center.y) * 0.2
   var d = {
     x: dx_center * Math.cos(o) + dy_center * Math.sin(o)  ,  // +dy
     y: dx_center * Math.sin(o) - dy_center * Math.cos(o) } // -dy
@@ -114,7 +114,7 @@ const offsetToll = async () => {
   await delay(200)    
   o =  Math.atan(curent_y*-1/curent_x)
   console.log("midleware angle",o*180/Math.PI)
-  Move(Math.cos(o)*49, (-1)* Math.sin(o)*55.5, 0)
+  Move(Math.cos(o)*48, (-1)* Math.sin(o)*47, 0)
 }
 
 function loadOpenCV() {
@@ -136,4 +136,4 @@ function loadOpenCV() {
     global.HTMLImageElement = Image;
   }
 
-  module.exports = {getCenter,offsetToll}
+  module.exports = {getCenter,offsetToll,download_image}

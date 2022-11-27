@@ -1,24 +1,26 @@
 const {MoveTo, Move, suction, getState} = require("./http-API")
 const fs = require("fs")
 
-const dock_file_path = "dock.json"
+ const dock_file_path = "dock.json" 
 var data = JSON.parse(fs.readFileSync(dock_file_path))
 const package_height = 12
 const Load_location = {x:100, y:-100}
-const Unload_location = {x:-150, y:-150}
+const Unload_location = {x:150, y:0}
 const reset_location = {x:0, y:-100, z:200}
 const dock_location = []
 /* dock_location[1] = {x:-150, y:75, storage:[{offerId: 1},{offerId:3}]}
 dock_location[2] = {x:-150, y:0, storage:[{offerId:5}]}
 dock_location[3] = {x:-150, y:-75, storage:[{offerId: 2}]}
 dock_location[4] = {x:-150, y:-150, storage:[]} */
-dock_location[1] = {x:data.dock_location1.x, y:data.dock_location1.x, storage:data.dock_location1.storage}
-dock_location[2] = {x:data.dock_location2.x, y:data.dock_location2.x, storage:data.dock_location2.storage}
-dock_location[3] = {x:data.dock_location3.x, y:data.dock_location3.x, storage:data.dock_location3.storage}
-dock_location[4] = {x:data.dock_location4.x, y:data.dock_location4.x, storage:data.dock_location4.storage}
+dock_location[1] = {x:data.dock_location1.x, y:data.dock_location1.y, storage:data.dock_location1.storage}
+dock_location[2] = {x:data.dock_location2.x, y:data.dock_location2.y, storage:data.dock_location2.storage}
+dock_location[3] = {x:data.dock_location3.x, y:data.dock_location3.y, storage:data.dock_location3.storage}
+dock_location[4] = {x:data.dock_location4.x, y:data.dock_location4.y, storage:data.dock_location4.storage}
 
-temp_array = []
+var temp_array = []
 
+
+console.log(dock_location)
 //console.log(dock_location[4].storage)
 // save dock data
 const save_data_to_JSON_file =async () => {
@@ -36,7 +38,10 @@ fs.writeFileSync(dock_file_path,save_data)
 
 //order LOW to HIGH --> storage level
 const select_storage_location = () => {
-    var temp_array =JSON.parse(JSON.stringify(dock_location))
+    for(var i = 1; i<=4; i++) {
+        temp_array[i] =JSON.parse(JSON.stringify(dock_location[i]))
+    }
+    
     for(var i=1; i<=4; i++){
         for(var j = 1; j<=4-i; j++){
             if(temp_array[j].storage.length > temp_array[j+1].storage.length) {
@@ -53,8 +58,8 @@ const select_storage_location = () => {
 // get index first object ordered array
 const getIndex = () => {
     for(var i=1; i<=4; i++){
-        if(select_storage_location()[1].x === dock_location[i].x && 
-        select_storage_location()[1].y === dock_location[i].y){
+        if(temp_array[1].x === dock_location[i].x && 
+        temp_array[1].y === dock_location[i].y){
             return i
         }
     }}
@@ -64,6 +69,7 @@ console.log(dock_location[getIndex()])
 console.log(dock_location) */
 
 const storage_location = () => {
+    select_storage_location()
     return getIndex()
 }
 
@@ -82,12 +88,12 @@ const Move_Load_location =async () => {
 }
 
 const Move_Unload_location =async () => {
-    MoveTo(Unload_location.x, Unload_location.y, 80 + package_height)
+    MoveTo(Unload_location.x, Unload_location.y, 100 + package_height)
     await delay(3000)
 }
 
 const Move_Reset_location =async () => {
-    MoveTo(reset_location.x, reset_location.y, reset_location)
+    MoveTo(reset_location.x, reset_location.y, reset_location.z)
     await delay(3000)
 }
 
@@ -98,13 +104,14 @@ const Move_dock_location =async (i,mode) => {
         z = (dock_location[i].storage.length * package_height) + package_height + 20 + 55
 }
     if(mode === "unload"){
-        z = (dock_location[i].storage.length * package_height) + 55 + 20 
+        z = (dock_location[i].storage.length * package_height) + 53 + 20 
     }
     console.log("x: ",dock_location[i].x
                 ,"y:",dock_location[i].y,
                 "z:",z )
+                
     MoveTo(dock_location[i].x, dock_location[i].y, z)
     await delay(3000)
 } 
 
-module.exports = {Move_Load_location, Move_Unload_location, Move_dock_location, dock_location, storage_location, Move_Reset_location, temp_array,delay,save_data_to_JSON_file}
+module.exports = {Move_Load_location, Move_Unload_location, Move_dock_location, dock_location, storage_location, Move_Reset_location, temp_array,delay,save_data_to_JSON_file,getIndex}

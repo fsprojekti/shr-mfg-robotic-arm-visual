@@ -18,7 +18,7 @@ const store_botton = document.getElementById("store")
 
 const img = new Image(640,480)
 img.src = 'https://avatars.mds.yandex.net/i?id=f45022e5888d50629cedd0aa55fc0e3d8f83ce59-7006309-images-thumbs&n=13'
-
+/* 
 start_botton.addEventListener("click", (e) => {
     e.preventDefault()
     start_botton.setAttribute("disabled","disabled")
@@ -40,7 +40,7 @@ stop_botton.addEventListener("click", (e) => {
         if(error) { return console.log(error)}
     })
 })
-
+ */
 
 x_submit.addEventListener("click", (e) => {
     e.preventDefault()

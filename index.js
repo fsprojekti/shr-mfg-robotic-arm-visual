@@ -17,7 +17,7 @@ const io = socketio(server)
 
 app.use(express.static(path.join(__dirname, "public")))
 
-let x, y, z, suction_state, state_data, start, offerId_client
+let x, y, z, suction_state, state_data, start = false, offerId_client
 
 io.on("connection",async (socket) => {
     
@@ -112,11 +112,6 @@ io.on("connection",async (socket) => {
         callback()
     })
 
-    while(start === true) {
-        robot_auto()
-    }
-
-
 })
 
 app.get(`/dock`, (req,res) => {
@@ -160,6 +155,17 @@ app.get("/dispatch", (req,res) => {
     console.log(task_queue)
     res.send(task_queue)
 })
+
+var robot_runing = false
+setInterval(async () => {
+    if(robot_runing !== true){
+        robot_runing = true
+        console.log("robot running")
+        await robot_auto()
+        robot_runing = false
+        
+    }
+}, 1000)
 
 server.listen(3000, () => {
     console.log("App running.")
