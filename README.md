@@ -10,8 +10,9 @@
 
 |API|parameter|return|
 |---|---|---
-|/dispatch||
-|/dock||
+|/dispatch|mode,OfferId,locattion| /
+|/dock|location,level | json podatke o shranjene paket
+|/task|/|vse naloga v čakalna vrsta
  
  
 /dock           location,level                   če ni parameter, vrne podatke o vse shranjene paket v json.file
