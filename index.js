@@ -6,7 +6,7 @@ const {MoveTo, Move, suction, getState} = require("./src/http-API")
 const circle = require("./src/visual") 
 const { json } = require("express")
 const {Move_Load_location, Move_Unload_location,
-      Move_dock_location, dock_location}  = require("./src/location")
+      Move_dock_location, dock_location, delay}  = require("./src/location")
 const {robot_auto} = require("./src/motion")
 const {task_queue, dispatch} = require("./src/task")
 
@@ -116,9 +116,7 @@ io.on("connection",async (socket) => {
 
 app.get(`/dock`, (req,res) => {
     if(!req.query.address || req.query.address > 4){
-        return res.send({
-            error: "It is no location"
-        })}
+        return res.send(dock_location)}
     else if(req.query.address !== undefined && req.query.level === undefined){
         res.send(dock_location[req.query.address])
     }
@@ -136,14 +134,19 @@ app.get("/task", (req,res) => {
     res.send(task_queue)
 })
 
-app.get("/dispatch", (req,res) => {
+app.get("/dispatch",async (req,res) => {
     if(req.query.OfferId === undefined ||req.query.OfferId === "" && req.query.mode === undefined || req.query.mode === undefined){
-        return res.send("Plsese set offer Id and dispath mode.")
+        return res.send("Please set offer Id and dispath mode.")
     } else if (req.query.OfferId !== undefined && req.query.mode === undefined || req.query.mode === "") {
-        return res.send("Plese set dispath mode.")
+        return res.send("Please set dispath mode.")
     } else if ( req.query.OfferId === undefined || req.query.OfferId === "" && req.query.mode !== undefined ){
-        return res.send("Plese set offer Id.")
-    }
+        return res.send("Please set offer Id.")
+    } else if( req.query.mode === "relocation" && (req.query.location === undefined || req.query.location === "")){
+        return res.send("Please set target location to relocation")
+    } else if( req.query.mode === "relocation" && (req.query.location < 1 || req.query.location > 4)){
+        return res.send("dock location must be 1 - 4")
+    } 
+
     for(var i=0;i<=task_queue.length-1;i++){
         var temp_offerId = task_queue[i].offerId
         if(req.query.OfferId === temp_offerId){
@@ -151,19 +154,25 @@ app.get("/dispatch", (req,res) => {
         }
     }
     var disapath_mode = req.query.mode.toString()
-    dispatch(req.query.OfferId, disapath_mode)
+    dispatch(req.query.OfferId, disapath_mode, req.query.location)
     console.log(task_queue)
-    res.send(task_queue)
-})
+
+    res.send(`task is accepted`)
+
+
+}) 
+
 
 var robot_runing = false
 setInterval(async () => {
-    if(robot_runing !== true){
-        robot_runing = true
-        console.log("robot running")
-        await robot_auto()
-        robot_runing = false
-        
+    if(start === true){
+        if(robot_runing !== true){
+            robot_runing = true
+            console.log("robot running")
+            await robot_auto()
+            robot_runing = false
+            
+        }
     }
 }, 1000)
 

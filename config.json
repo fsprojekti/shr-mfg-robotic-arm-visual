@@ -1,7 +1,5 @@
 {
-    "roboticArmIpAddress": "192.168.220.96",
-    "Port": 3000,
-    "absoluteMoveSpeedDefault": 500,
-    "relativeMoveSpeed": 500
+    "roboticArmIpAddress": "192.168.220.128",
+    "Port": 3000
   }
   
