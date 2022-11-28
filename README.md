@@ -6,10 +6,10 @@
 4. z vnosom v brskalnik: localhost:3000
 5. start gumb za avtomatsko delovanje, stop gumb za ustavljanje avtomatsko delovanje, ostale gumba so za testiranje kode oz. ročno upravljanje
 
-# HTTP API :
+## HTTP API :
 
- |API | parameter | return|
- |:--- |:-----:------| 
+|API|parameter|return|
+|:--- |:---:---| 
  
  
 /dock           location,level                   če ni parameter, vrne podatke o vse shranjene paket v json.file
