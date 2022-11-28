@@ -7,7 +7,7 @@
 5. start gumb za avtomatsko delovanje, stop gumb za ustavljanje avtomatsko delovanje, ostale gumba so za testiranje kode oz. ročno upravljanje
 
 shema:
-[附件 1.pdf](https://github.com/yuwence/warehouse/files/10105897/1.pdf)
+！[][code-past]:/public/image/shema.jpg
 
 
 ## HTTP API :
