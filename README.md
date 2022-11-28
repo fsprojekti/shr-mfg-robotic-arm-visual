@@ -8,8 +8,8 @@
 
 # HTTP API :
 
- API | parameter | return
- --- | -----     | ------  
+ |API | parameter | return|
+ |:--- |:-----:------| 
  
  
 /dock           location,level                   če ni parameter, vrne podatke o vse shranjene paket v json.file
