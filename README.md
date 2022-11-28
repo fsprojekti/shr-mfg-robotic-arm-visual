@@ -42,7 +42,7 @@ shema:
 * lokacija shranjevanje se izbre na mesto, ki ima najmanj shranjen paket.
 * robot vrne na izhodiščni lega.
 
-### unload
+#### unload
 * če je parameter pravilno nastavljen, program preveri kje je shranjen vnešeni paket
 * če nikjer ne najde, vrne napka
 * če je najdu, vstavi naloga v čakalni vrsto
@@ -52,7 +52,7 @@ shema:
 * nato želeni paket premakne za odlož.
 * začasno premaknjeni paket nazaj shranimo v mesto, ki je bil prej shranjen.
 
-### relocation
+#### relocation
 * od razlika od drugi način delovanje je obvezno nastaviti "location", kot novo mesto shranjevanje.
 * delovanje je podobna pri "unload"
 
