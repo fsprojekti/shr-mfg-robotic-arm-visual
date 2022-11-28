@@ -10,19 +10,19 @@
 
 |API|parameter|return|
 |---|---|---
-|/dispatch|mode(obvezna),OfferId(obvezna),locattion(obvezna za relocation)| /
-|/dock|location,level |JSON object:podatke o shranjene paket
-|/task|/|JSON object: vse naloga v čakalna vrsta
+|`/dispatch`|mode(obvezna),OfferId(obvezna),locattion(obvezna za relocation)| /
+|`/dock`|location,level |JSON object:podatke o shranjene paket
+|`/task`|/|JSON object: vse naloga v čakalna vrsta
 
-### /dock                 
+### `/dock`               
 * če ni parameter, vrne podatke o vse shranjene paket v json.file
 * če je samo location nastavljena(1-4), potem prikaži podatke o shranjevanje paket tistem lokacija.
 * če je oba parameter nastavljena, prikaži določeni lokacija in določeni stolpec
                                         
-### /task  
+### `/task` 
 * čakalna vrsta naloga v oblika json.file
 
-### /dispatch       
+### `/dispatch`       
 |mode|OfferId|location|
 |---|---|---
 |"unload", "load", "relocation"|`*NUMBER*`|`*1-4*`
