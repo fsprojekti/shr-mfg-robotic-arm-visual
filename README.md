@@ -14,9 +14,10 @@
 |/dock|location,level |JSON object:podatke o shranjene paket
 |/task|/|JSON object: vse naloga v čakalna vrsta
 
-/dock           location,level                   če ni parameter, vrne podatke o vse shranjene paket v json.file
-                                                 če je samo locationsom nastavljena(1-4), potem prikaži podatke o shranjevanje paket tistem lokacija.
-                                                 če je oba parameter nastavljena, prikaži določeni lokacija in določeni stolpec
+# /dock                 
+*če ni parameter, vrne podatke o vse shranjene paket v json.file
+*če je samo locationsom nastavljena(1-4), potem prikaži podatke o shranjevanje paket tistem lokacija.
+*če je oba parameter nastavljena, prikaži določeni lokacija in določeni stolpec
                                         
 /task                 /                          čakalna vrsta naloga v oblika json.file
 
