@@ -51,3 +51,8 @@
 ### relocation
 * od razlika od drugi način delovanje je obvezno nastaviti "location", kot novo mesto shranjevanje.
 * delovanje je podobna pri "unload"
+
+### opomba
+* v datoteka src/visual je funkcija `download_image` in `snapshot`
+* oba funcija vreže enako rezultat.
+* `download_image` je več hitrejši kot `snapshot`, vendar zaradi neznani problem je nehal delovati(nič ni sem spremenil pa je enkrat nehal delovati)
