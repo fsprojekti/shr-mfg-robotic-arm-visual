@@ -9,12 +9,10 @@
 # HTTP API :
 
  API | parameter | return
-
  ---- | ----- | ------  
-
  单元格内容  | 单元格内容 | 单元格内容 
-
  单元格内容  | 单元格内容 | 单元格内容  
+ 
 /dock           location,level                   če ni parameter, vrne podatke o vse shranjene paket v json.file
                                                  če je samo locationsom nastavljena(1-4), potem prikaži podatke o shranjevanje paket tistem lokacija.
                                                  če je oba parameter nastavljena, prikaži določeni lokacija in določeni stolpec
