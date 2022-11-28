@@ -6,7 +6,9 @@
 4. z vnosom v brskalnik: localhost:3000
 5. start gumb za avtomatsko delovanje, stop gumb za ustavljanje avtomatsko delovanje, ostale gumba so za testiranje kode oz. ročno upravljanje
 
-#http API :           parameter:                       return:
+# HTTP API :
+
+API | parameter | return
 /dock           location,level                   če ni parameter, vrne podatke o vse shranjene paket v json.file
                                                  če je samo locationsom nastavljena(1-4), potem prikaži podatke o shranjevanje paket tistem lokacija.
                                                  če je oba parameter nastavljena, prikaži določeni lokacija in določeni stolpec
