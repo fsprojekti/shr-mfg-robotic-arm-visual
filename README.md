@@ -6,6 +6,10 @@
 4. z vnosom v brskalnik: localhost:3000
 5. start gumb za avtomatsko delovanje, stop gumb za ustavljanje avtomatsko delovanje, ostale gumba so za testiranje kode oz. ročno upravljanje
 
+shema:
+[附件 1.pdf](https://github.com/yuwence/warehouse/files/10105897/1.pdf)
+
+
 ## HTTP API :
 
 |API|parameter|return|
@@ -56,3 +60,4 @@
 * v datoteka src/visual je funkcija `download_image` in `snapshot`
 * oba funcija vreže enako rezultat.
 * `download_image` je več hitrejši kot `snapshot`, vendar zaradi neznani problem je nehal delovati(nič ni sem spremenil pa je enkrat nehal delovati)
+
