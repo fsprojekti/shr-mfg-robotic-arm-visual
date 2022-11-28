@@ -9,11 +9,9 @@
 ## HTTP API :
 
 |API|parameter|return|
-|:--- |:---:---| 
-|作者|果冻虾仁|
-|---|---
-|知乎|[![zhihu-shield]][zhihu]
-|公众号|编程往事
+|---|---|---
+|/dispatch||
+|/dock||
  
  
 /dock           location,level                   če ni parameter, vrne podatke o vse shranjene paket v json.file
