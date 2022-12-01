@@ -48,20 +48,18 @@ const robot_auto =async () => {
             // i = dock location; j = level
             var i,j
             for(i =1; i<=4 ; i++){
-                var parse_dock = []
+                
                  if(dock_location[i].storage.indexOf(task_queue[0].offerId) !== -1){
                     j = dock_location[i].storage.indexOf(task_queue[0].offerId)
                     break
                 } 
-                if(parse_dock.indexOf(task_queue[0].offerId) !== -1){
-                    j =  dock_location[i].indexOf(task_queue[0].offerId)
-                    break
-                } else{ 
-                    j=-1
-                    console.log("offerId: ", task_queue[0].offerId, "don't exsist.")
-                    await task_queue.shift()
-                    await delay(1000)
-                    break                
+                 else{ 
+                    if(i===4){
+                        j=-1
+                        console.log("offerId: ", task_queue[0].offerId, "don't exsist.")
+                        await task_queue.shift()
+                        await delay(1000)
+                        break  }              
                 }
             }
             if(j !== -1) {
@@ -173,19 +171,20 @@ const robot_auto =async () => {
             // i = dock location; j = level
             var i,j
             for(i =1; i<=4 ; i++){
-                var parse_dock = []
-                 if(dock_location[i].storage.indexOf(task_queue[0].offerId) !== -1){
-                    j = dock_location[i].storage.indexOf(task_queue[0].offerId)
-                    break
-                } 
-                if(parse_dock.indexOf(task_queue[0].offerId) !== -1){
-                    j =  dock_location[i].indexOf(task_queue[0].offerId)
-                    break
-                } else{ 
-                    j=-1
-                    console.log("offerId: ", task_queue[0].offerId, ",don't exsist.")
-                }
-            }
+                
+                if(dock_location[i].storage.indexOf(task_queue[0].offerId) !== -1){
+                   j = dock_location[i].storage.indexOf(task_queue[0].offerId)
+                   break
+               } 
+                else{ 
+                   if(i===4){
+                       j=-1
+                       console.log("offerId: ", task_queue[0].offerId, "don't exsist.")
+                       await task_queue.shift()
+                       await delay(1000)
+                       break  }              
+               }
+           }
             if(j !== -1) {
                 // check if OfferId package in the highest level 
                 if(j === (dock_location[i].storage.length - 1)){

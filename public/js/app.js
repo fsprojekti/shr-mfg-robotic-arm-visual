@@ -16,6 +16,7 @@ const offerId = document.getElementById("offerId")
 const dispath_botton = document.getElementById("dispath_w_t")
 const store_botton = document.getElementById("store")
 
+
 const img = new Image(640,480)
 img.src = 'https://avatars.mds.yandex.net/i?id=f45022e5888d50629cedd0aa55fc0e3d8f83ce59-7006309-images-thumbs&n=13'
 
@@ -185,3 +186,7 @@ store_botton.addEventListener("click", (e) => {
 })
     console.log("submit")
 })
+
+var template = document.getElementById('template').innerHTML;
+var rendered = Mustache.render(template, { message: 'Luke' });
+document.getElementById('target').innerHTML = rendered;

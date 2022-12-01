@@ -17,7 +17,7 @@ const io = socketio(server)
 
 app.use(express.static(path.join(__dirname, "public")))
 
-let x, y, z, suction_state, state_data, start = false, offerId_client
+let x, y, z, suction_state, state_data, start = false, offerId_client, com
 
 io.on("connection",async (socket) => {
     
@@ -158,6 +158,10 @@ app.get("/dispatch",async (req,res) => {
     console.log(task_queue)
 
     res.send(`task is accepted`)
+    /* com.offerId = req.query.OfferId
+    if(task_queue.length - 1 === 0) {
+        com.state = "excute"
+    } */
 
 
 }) 
