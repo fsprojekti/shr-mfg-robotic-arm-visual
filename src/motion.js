@@ -53,15 +53,13 @@ const robot_auto =async () => {
                     j = dock_location[i].storage.indexOf(task_queue[0].offerId)
                     break
                 } 
-                if(parse_dock.indexOf(task_queue[0].offerId) !== -1){
-                    j =  dock_location[i].indexOf(task_queue[0].offerId)
-                    break
-                } else{ 
+                 else{ 
+                      if(i===4){
                     j=-1
                     console.log("offerId: ", task_queue[0].offerId, "don't exsist.")
                     await task_queue.shift()
                     await delay(1000)
-                    break                
+                    break  }              
                 }
             }
             if(j !== -1) {
@@ -172,18 +170,19 @@ const robot_auto =async () => {
             //offerId,and target location relocation
             // i = dock location; j = level
             var i,j
-            for(i =1; i<=4 ; i++){
+             for(i =1; i<=4 ; i++){
                 var parse_dock = []
                  if(dock_location[i].storage.indexOf(task_queue[0].offerId) !== -1){
                     j = dock_location[i].storage.indexOf(task_queue[0].offerId)
                     break
                 } 
-                if(parse_dock.indexOf(task_queue[0].offerId) !== -1){
-                    j =  dock_location[i].indexOf(task_queue[0].offerId)
-                    break
-                } else{ 
+                 else{ 
+                      if(i===4){
                     j=-1
-                    console.log("offerId: ", task_queue[0].offerId, ",don't exsist.")
+                    console.log("offerId: ", task_queue[0].offerId, "don't exsist.")
+                    await task_queue.shift()
+                    await delay(1000)
+                    break  }              
                 }
             }
             if(j !== -1) {
