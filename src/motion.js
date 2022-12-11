@@ -192,6 +192,7 @@ const robot_auto = async () => {
             console.log("task done")
         }
         else if (task_queue[0].mode === "unload") {
+            // check offer id is exist
             try{
                 var packageData = await getPackageData(Number(task_queue[0].offerId))
                 var packageData_len = packageData.length
@@ -201,7 +202,7 @@ const robot_auto = async () => {
                 console.log("Offer Id :",task_queue[0].offerId,"dont exist.")
                 return task_queue.shift()     
             }
-            // i = dock location; j = level
+            // find i = dock location; and find j = level
             var i, j
             for (i = 1; i <= 4; i++) {
                 var found = 0
@@ -214,36 +215,16 @@ const robot_auto = async () => {
                     break
                     }
                 }
-                /* if (dock_location[i].storage.indexOf(packageData[packageData_len - 1]) !== -1) {
-                    j = dock_location[i].storage.indexOf(packageData[packageData_len - 1])
-                    console.log(j)
-                    break */
+                // when is found , break this for loop
                 if(found === 1){
                         break
                     }
             }
+            //when offer id is found
             if (j !== -1) {
                 // check if OfferId package in the highest level
                 if (j === (dock_location[i].storage.length - 1)) {
-                    /* await Move_dock_location(i,"unload")
-                    await Move(0,0,-20)
-                    await delay(1000)
-                    await suction(true)
-                    await delay(1500)
-                    await Move(0,0,60)
-                    await delay(1500)
-                    await Move_Unload_location()
-                    await Move(0,0,-35)
-                    await delay(1000)
-                    await suction(false)
-                    await delay(2000)
-                    await Move(0,0,60)
-                    await delay(1000)
-                    await Move_Reset_location()
-                    await dock_location[i].storage.pop()
-                    await task_queue.shift()
-                    await delay(1000)
-                    await save_data_to_JSON_file() */
+                    //move from dock location to dispatch buffer
                     for (packageData_len; packageData_len >= 1; packageData_len--) {
                         await S_to_D(i)
                         await Move_Reset_location()
@@ -251,6 +232,8 @@ const robot_auto = async () => {
                         
                     }
                     var dl=dispatch_buffer.storage.length
+
+                    //move from dispatch buffer to unload area
                     for(dl;dl>=1;dl--){
                         await D_to_T(i)
                         await Move(0,0,100)
@@ -282,8 +265,6 @@ const robot_auto = async () => {
                         await Move(0, 0, 60)
                         await delay(1500)
                         // temp area
-                        //54 -> tool height, 20 -> distance for prevention collision
-                        // 12 package height
                         await MoveTo(0, -120, 60 + (package_height * l) + package_height + 20)
                         await delay(2000)
                         await Move(0, 0, -20)
@@ -296,23 +277,6 @@ const robot_auto = async () => {
                         temp_level++
                     }
                     // move target package to unload area
-                    /* await Move_dock_location(i,"unload")
-                    await Move(0,0,-20)
-                    await delay(1000)
-                    await suction(true)
-                    await delay(1500)
-                    await Move(0,0,60)
-                    await delay(1500)
-                    await Move_Unload_location()
-                    await Move(0,0,-35)
-                    await delay(1000)
-                    await suction(false)
-                    await delay(2000)
-                    await Move(0,0,60)
-                    await delay(1000) 
-                    await Move_Reset_location()
-                    await dock_location[i].storage.pop()
-                    await delay(1000)*/
                     for (packageData_len; packageData_len >= 1; packageData_len--) {
                         await S_to_D(i)
                         await Move(0,0,100)
@@ -366,6 +330,7 @@ const robot_auto = async () => {
             }
 
         }
+        //its similar code mode "unload"
         else if (task_queue[0].mode === "relocation") {
             try{
                 var packageData = await getPackageData(Number(task_queue[0].offerId))
@@ -389,10 +354,6 @@ const robot_auto = async () => {
                     break
                     }
                 }
-                /* if (dock_location[i].storage.indexOf(packageData[packageData_len - 1]) !== -1) {
-                    j = dock_location[i].storage.indexOf(packageData[packageData_len - 1])
-                    console.log(j)
-                    break */
                 if(found === 1){
                         break
                     }
@@ -400,25 +361,6 @@ const robot_auto = async () => {
             if (j !== -1) {
                 // check if OfferId package in the highest level 
                 if (j === (dock_location[i].storage.length - 1)) {
-                    /* await Move_dock_location(i,"unload")
-                    await Move(0,0,-20)
-                    await delay(1000)
-                    await suction(true)
-                    await delay(1500)
-                    await Move(0,0,60)
-                    await delay(1500)
-                    await Move_dock_location(task_queue[0].location,"load")
-                    await Move(0,0,-20)
-                    await delay(1000)
-                    await suction(false)
-                    await delay(2000)
-                    await Move(0,0,60)
-                    await delay(1000)
-                    await Move_Reset_location()
-                    await dock_location[task_queue[0].location].storage.push(dock_location[i].storage.pop())
-                    await task_queue.shift()
-                    await delay(1000)
-                    await save_data_to_JSON_file() */
                     for (packageData_len; packageData_len >= 1; packageData_len--) {
                         await Move_dock_location(i, "unload")
                         await Move(0, 0, -20)
@@ -461,8 +403,6 @@ const robot_auto = async () => {
                         await Move(0, 0, 60)
                         await delay(1500)
                         // temp area
-                        //54 -> tool height, 20 -> distance for prevention collision
-                        // 12 package height
                         await MoveTo(0, -120, 60 + (package_height * l) + package_height + 20)
                         await delay(2000)
                         await Move(0, 0, -20)
