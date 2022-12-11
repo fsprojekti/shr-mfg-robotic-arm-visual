@@ -18,6 +18,8 @@ shema:
 |`/dispatch`|mode(obvezna),OfferId(obvezna),locattion(obvezna za relocation)| /
 |`/dock`|location,level |JSON object:podatke o shranjene paket
 |`/task`|/|JSON object: vse naloga v čakalna vrsta
+|`/offer`|/|JSON object: vse podatke shranjeni offer
+
 
 ### `/dock`               
 * če ni parameter, vrne podatke o vse shranjene paket v json.file
