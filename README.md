@@ -8,7 +8,7 @@
 5. start gumb za avtomatsko delovanje, stop gumb za ustavljanje avtomatsko delovanje, ostale gumba so za testiranje kode oz. ročno upravljanje
 
 shema:
-![image](public/image/shema.jpg)
+![image](public/image/shema.png)
 
 
 ## HTTP API :
