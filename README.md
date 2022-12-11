@@ -13,7 +13,7 @@ V svoj PC
 3. z vnosom v brskalnik: localhost:3000
 4. start gumb za avtomatsko delovanje, stop gumb za ustavljanje avtomatsko delovanje, ostale gumba so za testiranje kode oz. ročno upravljanje
 
-##shema
+## shema
 ![image](public/image/shema.PNG)
 
 
