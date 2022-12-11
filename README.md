@@ -1,11 +1,18 @@
 # warehouse
 # warehouse
 
-1. spremeniti IP nalsov v config.json !!!
+V Raspberry Pi
+------------------------------------------------------
+1. poglej IP naslov --> if config
 2. zaustavljati delovanje server v robot --> v terminal : "pm2 stop 0"  !!!
 3. zaženi index.js pod mapa shr-mfg-robotic-arm-http-server --> node index.js  !!!
-4. z vnosom v brskalnik: localhost:3000
-5. start gumb za avtomatsko delovanje, stop gumb za ustavljanje avtomatsko delovanje, ostale gumba so za testiranje kode oz. ročno upravljanje
+
+V svoj PC
+ ----------------------------------------------------
+1.spremeniti IP nalsov v config.json !!!
+2 start nodejs program -- node index.js
+3. z vnosom v brskalnik: localhost:3000
+4. start gumb za avtomatsko delovanje, stop gumb za ustavljanje avtomatsko delovanje, ostale gumba so za testiranje kode oz. ročno upravljanje
 
 shema:
 ![image](public/image/schema.PNG)
