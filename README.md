@@ -21,7 +21,7 @@ shema:
 
 |API|parameter|return|
 |---|---|---
-|`/dispatch`|mode(obvezna),OfferId(obvezna),locattion(obvezna za relocation)| /
+|`/dispatch`|mode(obvezna),OfferId(obvezna),locattion(obvezna za relocation)| accept / error
 |`/dock`|location,level |JSON object:podatke o shranjene paket
 |`/task`|/|JSON object: vse naloga v čakalna vrsta
 |`/offer`|/|JSON object: vse podatke shranjeni offer
