@@ -9,8 +9,8 @@ V Raspberry Pi
 
 V svoj PC
  ----------------------------------------------------
-1.spremeniti IP nalsov v config.json !!!
-2 start nodejs program -- node index.js
+1. spremeniti IP nalsov v config.json !!!
+2. start nodejs program -- node index.js
 3. z vnosom v brskalnik: localhost:3000
 4. start gumb za avtomatsko delovanje, stop gumb za ustavljanje avtomatsko delovanje, ostale gumba so za testiranje kode oz. ročno upravljanje
 
