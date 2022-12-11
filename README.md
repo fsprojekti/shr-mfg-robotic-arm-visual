@@ -46,7 +46,7 @@ shema:
 * robot skenira apritag ID
 * robot naredi offset od kamera do središče orodja(pnevmatski sesalec).
 * robot pobira paket in ga shrani v receive buffer
-** robot postopek ponavlja za vse paket
+* * robot postopek ponavlja za vse paket
 * robot pobira paket iz receive buffer in ga premakne na dock.
 * lokacija shranjevanje se izbre na mesto, ki ima najmanj shranjen paket.
 * * postopek ponavlja za vse paket v receive buffer
