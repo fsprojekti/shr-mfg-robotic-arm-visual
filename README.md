@@ -56,21 +56,21 @@ shema:
 * primer: `http://localhost:3000/dispatch?OfferId=1&mode=load`
 
 #### unload (robot oddaja paket iz skladišče v transport)
-* če je parameter pravilno nastavljen, program preveri kje je shranjen vnešeni paket
+* če je parameter pravilno nastavljen, program preveri kje je shranjen vnešeni offer
 * če nikjer ne najde, vrne napka
 * če je najdu, vstavi naloga v čakalni vrsto
-* če je na vrst naloga, robot približa na mesto shranjeni paket.
-* če leži na najviši stopnja, ga vzame in premakne v območje, ki odloži paket oz. transportni robot, ki čaka za sprejet paket
-* če leži pod drugim paket, vse paket, ki je nad želeni paket, ga žačasno premaknemo.
+* če je na vrst naloga, robot približa na mesto,kjer shranjeni paket.
+* če je zadnja paket iz želenega offer leži na najviši stopnja, ga vzame in premakne v območje, ki odloži paket oz. transportni robot, ki čaka za sprejet paket
+* če leži pod drugim paket, vse paket, ki je nad želeni paketi, ga žačasno premaknemo.
 * nato želeni paket premakne za odlož.
 * začasno premaknjeni paket nazaj shranimo v mesto, ki je bil prej shranjen.
+* po končanje naloga se izbriše tistega offer iz json datoteka.
+* robot vrne na izhodiščni lega.
+* primer: `http://localhost:3000/dispatch?OfferId=1&mode=unload`
 
 #### relocation
 * od razlika od drugi način delovanje je obvezno nastaviti "location", kot novo mesto shranjevanje.
 * delovanje je podobna pri "unload"
-
-### opomba
-* v datoteka src/visual je funkcija `download_image` in `snapshot`
-* oba funcija vreže enako rezultat.
-* `download_image` je več hitrejši kot `snapshot`, vendar zaradi neznani problem je nehal delovati(nič ni sem spremenil pa je enkrat nehal delovati)
+* Robot premakne vse paket iz želenega offer na novi lokacija.
+* primer: `http://localhost:3000/dispatch?OfferId=1&mode=relocation&location=2`
 
