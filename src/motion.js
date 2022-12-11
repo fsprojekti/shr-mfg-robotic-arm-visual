@@ -191,6 +191,7 @@ const robot_auto = async () => {
             await delay(1000)
             console.log("task done")
         }
+<<<<<<< HEAD
         else if (task_queue[0].mode === "unload") {
             try{
                 var packageData = await getPackageData(Number(task_queue[0].offerId))
@@ -200,6 +201,25 @@ const robot_auto = async () => {
             } catch(e){
                 console.log("Offer Id :",task_queue[0].offerId,"dont exist.")
                 return task_queue.shift()     
+=======
+        else if(task_queue[0].mode === "unload"){
+            // i = dock location; j = level
+            var i,j
+            for(i =1; i<=4 ; i++){
+                var parse_dock = []
+                 if(dock_location[i].storage.indexOf(task_queue[0].offerId) !== -1){
+                    j = dock_location[i].storage.indexOf(task_queue[0].offerId)
+                    break
+                } 
+                 else{ 
+                      if(i===4){
+                    j=-1
+                    console.log("offerId: ", task_queue[0].offerId, "don't exsist.")
+                    await task_queue.shift()
+                    await delay(1000)
+                    break  }              
+                }
+>>>>>>> e8126049379f8350a39a794aaa5822bc5fa6da77
             }
             // i = dock location; j = level
             var i, j
@@ -365,6 +385,7 @@ const robot_auto = async () => {
             }
 
         }
+<<<<<<< HEAD
         else if (task_queue[0].mode === "relocation") {
             try{
                 var packageData = await getPackageData(Number(task_queue[0].offerId))
@@ -374,6 +395,26 @@ const robot_auto = async () => {
             } catch(e){
                 console.log("Offer Id :",task_queue[0].offerId,"dont exist.")
                 return task_queue.shift()     
+=======
+        else if(task_queue[0].mode === "relocation" ){
+            //offerId,and target location relocation
+            // i = dock location; j = level
+            var i,j
+             for(i =1; i<=4 ; i++){
+                var parse_dock = []
+                 if(dock_location[i].storage.indexOf(task_queue[0].offerId) !== -1){
+                    j = dock_location[i].storage.indexOf(task_queue[0].offerId)
+                    break
+                } 
+                 else{ 
+                      if(i===4){
+                    j=-1
+                    console.log("offerId: ", task_queue[0].offerId, "don't exsist.")
+                    await task_queue.shift()
+                    await delay(1000)
+                    break  }              
+                }
+>>>>>>> e8126049379f8350a39a794aaa5822bc5fa6da77
             }
             // i = dock location; j = level
             var i, j
@@ -543,4 +584,8 @@ const robot_auto = async () => {
     }
 }
 
+<<<<<<< HEAD
 module.exports = { robot_auto, T_to_R, R_to_S }
+=======
+module.exports = {robot_auto}
+>>>>>>> e8126049379f8350a39a794aaa5822bc5fa6da77
