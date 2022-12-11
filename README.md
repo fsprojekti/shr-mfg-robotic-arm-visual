@@ -28,7 +28,7 @@ shema:
                                         
 ### `/task` 
 * JSON object : vse naloga v čakalna vrsta
-### `/task` 
+### `/offer` 
 * JSON object : Offer{id, location, package ID[]}
 
 ### `/dispatch`       
@@ -36,18 +36,26 @@ shema:
 |---|---|---
 |"unload", "load", "relocation"|`__NUMBER__`|`_1-4_`
 
-#### load
+#### load (robot shrani paket iz transport v skladišče)
 * če je parameter pravilno nastavljen, naloga se vstavi v čakalni vrsto.
 * naloga se izvaja po vrstni redu po čakalni vrsto.
 * robot približa mesto, ki odloži paket oz. mesto, ki čaka transportni robot.
 * robot izračuna kordinat center paket (robot se zaznava samo krožni površina, ni sem uporabil April tag)
 * robot premakne na mesto tako, da bo center kamera po z os kolinealna center paket.
+* robot izračuna koliko paket je pod kamera
+* robot skenira apritag ID
 * robot naredi offset od kamera do središče orodja(pnevmatski sesalec).
-* robot pobira paket in ga shrani v skladišče
+* robot pobira paket in ga shrani v receive buffer
+** robot postopek ponavlja za vse paket
+* robot pobira paket iz receive buffer in ga premakne na dock.
 * lokacija shranjevanje se izbre na mesto, ki ima najmanj shranjen paket.
+* * postopek ponavlja za vse paket v receive buffer
+* podatke ID offer, lokacija shranjevanje in vse ID paket v tem offer se shrani v json file v offer.json
+* podatke dock.json je shranjena ID paket v posamezni lokacija dock. 
 * robot vrne na izhodiščni lega.
+* primer: `http://localhost:3000/dispatch?OfferId=1&mode=load`
 
-#### unload
+#### unload (robot oddaja paket iz skladišče v transport)
 * če je parameter pravilno nastavljen, program preveri kje je shranjen vnešeni paket
 * če nikjer ne najde, vrne napka
 * če je najdu, vstavi naloga v čakalni vrsto
