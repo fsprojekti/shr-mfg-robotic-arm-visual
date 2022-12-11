@@ -14,7 +14,7 @@ V svoj PC
 4. start gumb za avtomatsko delovanje, stop gumb za ustavljanje avtomatsko delovanje, ostale gumba so za testiranje kode oz. ročno upravljanje
 
 ## shema
-![image](public/image/shema.PNG)
+![image](public/image/schema.PNG)
 
 
 ## HTTP API :
