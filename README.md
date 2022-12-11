@@ -28,6 +28,8 @@ shema:
                                         
 ### `/task` 
 * JSON object : vse naloga v čakalna vrsta
+### `/task` 
+* JSON object : Offer{id, location, package ID[]}
 
 ### `/dispatch`       
 |mode|OfferId|location|
