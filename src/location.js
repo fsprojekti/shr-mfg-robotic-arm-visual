@@ -1,26 +1,37 @@
 const {MoveTo, Move, suction, getState} = require("./http-API")
 const fs = require("fs")
 
+
+//define cordinate every location
 const dock_file_path = "dock.json" 
 var data = JSON.parse(fs.readFileSync(dock_file_path))
 const package_height = 10.6
+//location,where should AVG wait for unload package
 const Load_location = {x:135, y:-135}
+
+//location, where should AVG waite for load package
 const Unload_location = {x:200, y:0,storage:[]}
+
+//location, where should robot arm stay, when task done
 const reset_location = {x:0, y:-100, z:200}
 const dock_location = []
+//intermediate location for store package
 const receive_buffer = {x:data.receive_buffer.x,y:data.receive_buffer.y,storage:data.receive_buffer.storage}
+//intermediate location for unload package from warehouse
 const dispatch_buffer = {x:data.dispatch_buffer.x,y:data.dispatch_buffer.y,storage:data.dispatch_buffer.storage}
 /* dock_location[1] = {x:-150, y:75, storage:[{offerId: 1},{offerId:3}]}
 dock_location[2] = {x:-150, y:0, storage:[{offerId:5}]}
 dock_location[3] = {x:-150, y:-75, storage:[{offerId: 2}]}
 dock_location[4] = {x:-150, y:-150, storage:[]} */
+
+//location to store package
 dock_location[1] = {x:data.dock_location1.x, y:data.dock_location1.y, storage:data.dock_location1.storage}
 dock_location[2] = {x:data.dock_location2.x, y:data.dock_location2.y, storage:data.dock_location2.storage}
 dock_location[3] = {x:data.dock_location3.x, y:data.dock_location3.y, storage:data.dock_location3.storage}
 dock_location[4] = {x:data.dock_location4.x, y:data.dock_location4.y, storage:data.dock_location4.storage}
 
+// used for sorting size dock
 var temp_array = []
-
 
 console.log(dock_location)
 //console.log(dock_location[4].storage)
@@ -89,21 +100,25 @@ const storage_location = () => {
 
 //console.log(select_storage_location()[1])
 
+// delay for ms
 function delay(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
-
+//Move to load_location
 const Move_Load_location =async (z=100) => {
     await MoveTo(Load_location.x, Load_location.y, z)
     await delay(3000)
 }
 
+//Move to dispatch buffer
 const Move_dispatch_buffer = async (mode) => {
     var z
+    //when robot arm have package on suction
     if(mode === "load"){
        z = (dispatch_buffer.storage.length * package_height) + package_height + 20 + 60
     }
+    //when robot arm have not package on suction
     if(mode === "unload"){
         z = (dispatch_buffer.storage.length * package_height) + 53 + 20
     }
@@ -113,9 +128,11 @@ const Move_dispatch_buffer = async (mode) => {
 
 const Move_receive_buffer = async (mode) => {
     var z
+    //when robot arm have package on suction
     if(mode === "load"){
        z = (receive_buffer.storage.length * package_height) + package_height + 20 + 60
     }
+    //when robot arm have not package on suction
     if(mode === "unload"){
         z = (receive_buffer.storage.length * package_height) + 53 + 20
     }
@@ -137,10 +154,11 @@ const Move_Reset_location =async () => {
 
 const Move_dock_location =async (i,mode) => {
     let z
-    //70 -> tool height, 20 -> distance for prevention collision 
+    //when robot arm have package on suction
     if(mode === "load"){
         z = (dock_location[i].storage.length * package_height) + package_height + 20 + 60
-}
+    }
+    //when robot arm have not package on suction
     if(mode === "unload"){
         z = (dock_location[i].storage.length * package_height) + 53 + 20 
     }

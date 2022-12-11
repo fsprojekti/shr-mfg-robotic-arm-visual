@@ -2,6 +2,7 @@ const { MoveTo ,getState} = require("./http-API")
 const { download_image ,url,file_path} = require("./visual")
 const {delay} =require("./location")
 const exec = require('child_process').exec
+
 //detect april tag id
 const getId =async () => {
     await download_image(url,file_path)
@@ -13,7 +14,8 @@ const getId =async () => {
     })
   }
   
-  const getImage_data_py = async () => {
+// get cordinate center ellipse and his area size
+const getImage_data_py = async () => {
     await download_image(url,file_path)
     await delay(500)
     return new Promise((resolve,reject) => {
@@ -23,7 +25,8 @@ const getId =async () => {
     })
   }
   
-  const ImageProcessing_py = async () => {
+// parse data from python script
+const ImageProcessing_py = async () => {
     var data = 0
     await getImage_data_py().then(d => {
       data = JSON.parse(d)
@@ -37,7 +40,7 @@ const getId =async () => {
     }
   }
 
-  // calculate number of package when Packages are under of center camera
+  // get  data area size
 const calculateHeigh_py = async () => {
     var S,n
     //await MoveTo(100, -100, 200)
@@ -48,6 +51,7 @@ const calculateHeigh_py = async () => {
     console.log(S.S)
     return(S.S)
   }
+  // calculate number of package when Packages are under of center camera
 const getNumberPackage_py = async (S) => {
   if( S >= 47555.8 * 0.95 && S <= 47555.8 * 1.05){
     return n = 1
@@ -64,6 +68,7 @@ const getNumberPackage_py = async (S) => {
 }
 }
 
+//calculate dx and dy to move robot
 const getCenter_py = async (k=0.305) => {
     var curent_x = 0,curent_y = 0,o =0
     getState( (d) => {

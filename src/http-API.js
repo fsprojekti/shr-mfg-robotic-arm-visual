@@ -3,7 +3,7 @@ const { callbackify } = require("util");
 const config = require("../config.json")
 const axios = require("axios")
 
-
+// call API MoveTo
 const MoveTo =async (x,y,z) => {
   const req =  http.request({
     hostname: config.roboticArmIpAddress,
@@ -24,7 +24,7 @@ const MoveTo =async (x,y,z) => {
   })
   req.end()
 }
-
+// call API Move
 const Move =async (x,y,z) => {
   const req =  http.request({
     hostname: config.roboticArmIpAddress,
@@ -45,7 +45,7 @@ const Move =async (x,y,z) => {
   })
   req.end()
 }
-
+// call API suction
 const suction =async (state) => {
   const req =  http.request({
     hostname: config.roboticArmIpAddress,
@@ -67,7 +67,7 @@ const suction =async (state) => {
   req.end()
 
 }
-
+// call API getstate
 const getState = async (cb) => {
   // call /basic/state API endpoint
   axios.get('http://' + config.roboticArmIpAddress+':'+config.Port + '/basic/state')

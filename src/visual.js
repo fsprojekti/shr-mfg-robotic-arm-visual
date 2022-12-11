@@ -10,8 +10,7 @@ const {getState, Move, MoveTo} = require("./http-API");
 const {delay} = require("./location");
 
 
-
-
+//url to get image
 const url = 'http://'+configIp.roboticArmIpAddress+':8080/snapshot?topic=/usb_cam/image_rect_color'
 const file_path = path.resolve(__dirname,"../public/image/input.jpg") 
 const file_path_out = path.resolve(__dirname,"../public/image/output.jpg")
@@ -19,6 +18,7 @@ const file_path_out = path.resolve(__dirname,"../public/image/output.jpg")
 installDOM();
 loadOpenCV(); 
 
+//download image from url
 const download_image =async (url, image_path) => {
   const response = await axios({
     url,
@@ -32,6 +32,7 @@ const download_image =async (url, image_path) => {
   })
 }
 
+//download image from url slower than function download_image
  async function snapshot() {
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
@@ -46,7 +47,9 @@ const download_image =async (url, image_path) => {
   await browser.close();
 }  
 
-
+// find circle in image. 
+//now in program is using python script to find ellipse.
+// so this function is no longer to use
 const imageProcessing = async () => {
   try{
     var x =0;
@@ -79,7 +82,8 @@ const imageProcessing = async () => {
   }
 }
 
-
+// calculater dx and dy to move robot by detection circle.
+// no longer to use
 const getCenter = async () => {
   var curent_x = 0,curent_y = 0,o =0
   getState( (d) => {
@@ -106,6 +110,7 @@ const getCenter = async () => {
   return d
 }
 
+// move robot for offset between camera and suction
 const offsetToll = async () => {
   var curent_x,curent_y,o
   await getState( (d) => {
@@ -118,7 +123,7 @@ const offsetToll = async () => {
   Move(Math.cos(o)*50, (-1)* Math.sin(o)*49, 0)
 }
 
- 
+ // call opencv.js file
 function loadOpenCV() {
     return new Promise(resolve => {
       global.Module = {
