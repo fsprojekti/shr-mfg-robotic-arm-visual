@@ -6,8 +6,10 @@ const configIp = require("../config.json")
 const axios = require("axios")
 const fs = require("fs")
 const puppeteer = require('puppeteer');
-const {getState, Move} = require("./http-API");
+const {getState, Move, MoveTo} = require("./http-API");
 const {delay} = require("./location");
+
+
 
 
 const url = 'http://'+configIp.roboticArmIpAddress+':8080/snapshot?topic=/usb_cam/image_rect_color'
@@ -18,16 +20,16 @@ installDOM();
 loadOpenCV(); 
 
 const download_image =async (url, image_path) => {
-  axios({url, responseType: 'stream'}).then(
-    response => {
-      new Promise((resolve,reject) => {
-        response.data
-        .pipe(fs.createWriteStream(image_path))
-        .on('finish',() => resolve())
-        .on('error', e => reject(e))
-      })
-    }
-  )
+  const response = await axios({
+    url,
+    method:'GET',
+    responseType: 'stream'
+  })
+  return new Promise((resolve,reject) => {
+    response.data.pipe(fs.createWriteStream(image_path))
+    .on('error',reject)
+    .once('close', () => resolve(image_path))
+  })
 }
 
  async function snapshot() {
@@ -44,6 +46,7 @@ const download_image =async (url, image_path) => {
   await browser.close();
 }  
 
+
 const imageProcessing = async () => {
   try{
     var x =0;
@@ -54,11 +57,8 @@ const imageProcessing = async () => {
     let circles = await new cv.Mat();
     let color = await new cv.Scalar(255, 0,0);
     await cv.cvtColor(src, src, cv.COLOR_RGB2GRAY, 0);
-    /* let low = new cv.Mat(src.rows, src.cols, src.type(), [0, 43, 46, 0]);
-    let high = new cv.Mat(src.rows, src.cols, src.type(), [10, 255,255, 255]);
-    cv.inRange(src, low, high, src); */
     await cv.HoughCircles(src, circles, cv.HOUGH_GRADIENT,
-                    1, 300, 25, 40, 75, 140);
+                    1, 1000, 50, 70, 75, 140);
     // draw circles
     for (let i = 0; i < circles.cols; ++i) {
         x = circles.data32F[i * 3];
@@ -79,6 +79,7 @@ const imageProcessing = async () => {
   }
 }
 
+
 const getCenter = async () => {
   var curent_x = 0,curent_y = 0,o =0
   getState( (d) => {
@@ -88,11 +89,11 @@ const getCenter = async () => {
     curent_y = d.y
 })
   await delay(200)
-  await snapshot() 
-  /*await download_image(url,file_path)*/
+  //await snapshot() 
+  await download_image(url,file_path)
   
   o = Math.atan(curent_y *-1/curent_x)
-
+ 
   let center = await imageProcessing()
   console.log("center_pixel：" + JSON.stringify(center));
   var dx_center = ((640/2) - center.x) * 0.15
@@ -114,9 +115,10 @@ const offsetToll = async () => {
   await delay(200)    
   o =  Math.atan(curent_y*-1/curent_x)
   console.log("midleware angle",o*180/Math.PI)
-  Move(Math.cos(o)*48, (-1)* Math.sin(o)*47, 0)
+  Move(Math.cos(o)*50, (-1)* Math.sin(o)*49, 0)
 }
 
+ 
 function loadOpenCV() {
     return new Promise(resolve => {
       global.Module = {
@@ -136,4 +138,4 @@ function loadOpenCV() {
     global.HTMLImageElement = Image;
   }
 
-  module.exports = {getCenter,offsetToll,download_image}
+  module.exports = {getCenter,offsetToll,download_image,url,file_path}

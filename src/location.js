@@ -1,13 +1,15 @@
 const {MoveTo, Move, suction, getState} = require("./http-API")
 const fs = require("fs")
 
- const dock_file_path = "dock.json" 
+const dock_file_path = "dock.json" 
 var data = JSON.parse(fs.readFileSync(dock_file_path))
-const package_height = 12
-const Load_location = {x:100, y:-100}
-const Unload_location = {x:150, y:0}
+const package_height = 10.6
+const Load_location = {x:135, y:-135}
+const Unload_location = {x:200, y:0,storage:[]}
 const reset_location = {x:0, y:-100, z:200}
 const dock_location = []
+const receive_buffer = {x:data.receive_buffer.x,y:data.receive_buffer.y,storage:data.receive_buffer.storage}
+const dispatch_buffer = {x:data.dispatch_buffer.x,y:data.dispatch_buffer.y,storage:data.dispatch_buffer.storage}
 /* dock_location[1] = {x:-150, y:75, storage:[{offerId: 1},{offerId:3}]}
 dock_location[2] = {x:-150, y:0, storage:[{offerId:5}]}
 dock_location[3] = {x:-150, y:-75, storage:[{offerId: 2}]}
@@ -28,7 +30,17 @@ let dock = {
     dock_location1 : {x:dock_location[1].x, y:dock_location[1].y, storage:dock_location[1].storage},
     dock_location2 : {x:dock_location[2].x, y:dock_location[2].y, storage:dock_location[2].storage},
     dock_location3 : {x:dock_location[3].x, y:dock_location[3].y, storage:dock_location[3].storage},
-    dock_location4 : {x:dock_location[4].x, y:dock_location[4].y, storage:dock_location[4].storage}
+    dock_location4 : {x:dock_location[4].x, y:dock_location[4].y, storage:dock_location[4].storage},
+    receive_buffer: {
+        x: 0,
+        y: -160,
+        storage: receive_buffer.storage
+    },
+    dispatch_buffer: {
+        x: 125,
+        y: 0,
+        storage: dispatch_buffer.storage
+    }
     }
 let save_data = JSON.stringify(dock)
 fs.writeFileSync(dock_file_path,save_data)
@@ -82,13 +94,39 @@ function delay(ms) {
   }
 
 
-const Move_Load_location =async () => {
-    await MoveTo(Load_location.x, Load_location.y, 100)
+const Move_Load_location =async (z=100) => {
+    await MoveTo(Load_location.x, Load_location.y, z)
+    await delay(3000)
+}
+
+const Move_dispatch_buffer = async (mode) => {
+    var z
+    if(mode === "load"){
+       z = (dispatch_buffer.storage.length * package_height) + package_height + 20 + 60
+    }
+    if(mode === "unload"){
+        z = (dispatch_buffer.storage.length * package_height) + 53 + 20
+    }
+    MoveTo(dispatch_buffer.x, dispatch_buffer.y, z)
+    await delay(3000)
+}
+
+const Move_receive_buffer = async (mode) => {
+    var z
+    if(mode === "load"){
+       z = (receive_buffer.storage.length * package_height) + package_height + 20 + 60
+    }
+    if(mode === "unload"){
+        z = (receive_buffer.storage.length * package_height) + 53 + 20
+    }
+    MoveTo(receive_buffer.x, receive_buffer.y, z)
     await delay(3000)
 }
 
 const Move_Unload_location =async () => {
-    MoveTo(Unload_location.x, Unload_location.y, 100 + package_height)
+    var z = (Unload_location.storage.length * package_height) + package_height + 20 + 60
+    
+    MoveTo(Unload_location.x, Unload_location.y, z)
     await delay(3000)
 }
 
@@ -101,7 +139,7 @@ const Move_dock_location =async (i,mode) => {
     let z
     //70 -> tool height, 20 -> distance for prevention collision 
     if(mode === "load"){
-        z = (dock_location[i].storage.length * package_height) + package_height + 20 + 55
+        z = (dock_location[i].storage.length * package_height) + package_height + 20 + 60
 }
     if(mode === "unload"){
         z = (dock_location[i].storage.length * package_height) + 53 + 20 
@@ -114,4 +152,7 @@ const Move_dock_location =async (i,mode) => {
     await delay(3000)
 } 
 
-module.exports = {Move_Load_location, Move_Unload_location, Move_dock_location, dock_location, storage_location, Move_Reset_location, temp_array,delay,save_data_to_JSON_file,getIndex}
+module.exports = {Move_Load_location, Move_Unload_location, 
+    Move_dock_location, dock_location, storage_location, Move_Reset_location, 
+    temp_array,delay,save_data_to_JSON_file,getIndex,package_height,
+    Move_dispatch_buffer,Move_receive_buffer, Unload_location,receive_buffer,dispatch_buffer}

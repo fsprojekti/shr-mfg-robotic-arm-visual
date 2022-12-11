@@ -9,6 +9,8 @@ const {Move_Load_location, Move_Unload_location,
       Move_dock_location, dock_location, delay}  = require("./src/location")
 const {robot_auto} = require("./src/motion")
 const {task_queue, dispatch} = require("./src/task")
+const { Offer, offer, removeOffer, getPackageData, save_Offer_to_JSON_file, getIndexOfId, Add_offer, reverse_package, edit_offer, push_package } = require("./Offer")
+
 
 
 const app = express()
@@ -17,7 +19,8 @@ const io = socketio(server)
 
 app.use(express.static(path.join(__dirname, "public")))
 
-let x, y, z, suction_state, state_data, start = false, offerId_client, com
+
+let x, y, z, suction_state, state_data, start = false, offerId_client
 
 io.on("connection",async (socket) => {
     
@@ -97,6 +100,7 @@ io.on("connection",async (socket) => {
         callback()
     })
 
+    // dispatch from warehouse to transport
     socket.on("dispath_w_t", (message,callback) => {
         offerId_client = message
         console.log(offerId_client)
@@ -104,6 +108,8 @@ io.on("connection",async (socket) => {
         console.log(task_queue)
         callback()
     })
+
+    // dispatch from tranport to warehouse
     socket.on("store_t_w", (message,callback) => {
         offerId_client = message
         console.log(offerId_client)
@@ -114,6 +120,7 @@ io.on("connection",async (socket) => {
 
 })
 
+// HTTP API get package data in any location
 app.get(`/dock`, (req,res) => {
     if(!req.query.address || req.query.address > 4){
         return res.send(dock_location)}
@@ -130,10 +137,17 @@ app.get(`/dock`, (req,res) => {
     }
 })
 
+// HTTP API get curent offer save in warehouse
+app.get("/offer", (req,res) => {
+    res.send(offer)
+})
+
+// HTTP API get curent task queue
 app.get("/task", (req,res) => {
     res.send(task_queue)
 })
 
+// HTTP API dispatch task
 app.get("/dispatch",async (req,res) => {
     if(req.query.OfferId === undefined ||req.query.OfferId === "" && req.query.mode === undefined || req.query.mode === undefined){
         return res.send("Please set offer Id and dispath mode.")
@@ -168,6 +182,7 @@ app.get("/dispatch",async (req,res) => {
 
 
 var robot_runing = false
+// for every second check task queue and if program is start
 setInterval(async () => {
     if(start === true){
         if(robot_runing !== true){
