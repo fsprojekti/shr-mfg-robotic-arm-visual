@@ -80,3 +80,11 @@ V svoj PC
 * Robot premakne vse paket iz želenega offer na novi lokacija.
 * primer: `http://localhost:3000/dispatch?OfferId=1&mode=relocation&location=2`
 
+# Pametna pogodba
+pametna pogodba je razporejena v goerli testna stran z metamask preko remix.
+Za povezava aplikacija in ethereum je uporabljana ethers.js v brskalnik.
+V Pametna pogodba so funkcija:
+`getPackage(int id_offer)` ==> za pogled vse paket ID v istega ID ofer.
+`addOffer(int id_offer,int lokacija_shranjevanje,array [paket ID])` ==> za dodajanje novi Offer.
+`changeLocation(int id_offer,int lokacija)` ==> za spremenba lokacija shranjevanje offer.
+`removeOffer(int id)` ==> izbriše Offer.
