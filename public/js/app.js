@@ -17,6 +17,203 @@ const dispath_botton = document.getElementById("dispath_w_t")
 const store_botton = document.getElementById("store")
 
 
+const ethereumButton = document.querySelector('.enableEthereumButton');
+const myABI = [
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "ID",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint8",
+                "name": "storage_location",
+                "type": "uint8"
+            },
+            {
+                "internalType": "uint256[]",
+                "name": "packageId",
+                "type": "uint256[]"
+            }
+        ],
+        "name": "addOffer",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "ID",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint8",
+                "name": "storage_location",
+                "type": "uint8"
+            }
+        ],
+        "name": "changeLocation",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "ID",
+                "type": "uint256"
+            }
+        ],
+        "name": "removeOffer",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "id",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256[]",
+                "name": "packageId",
+                "type": "uint256[]"
+            }
+        ],
+        "name": "setPackage",
+        "outputs": [
+            {
+                "internalType": "uint256[]",
+                "name": "",
+                "type": "uint256[]"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "ID",
+                "type": "uint256"
+            }
+        ],
+        "name": "getOfferData",
+        "outputs": [
+            {
+                "components": [
+                    {
+                        "internalType": "uint256",
+                        "name": "ID",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint8",
+                        "name": "storage_location",
+                        "type": "uint8"
+                    }
+                ],
+                "internalType": "struct warehouse.Offer",
+                "name": "",
+                "type": "tuple"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "id",
+                "type": "uint256"
+            }
+        ],
+        "name": "getPackage",
+        "outputs": [
+            {
+                "internalType": "uint256[]",
+                "name": "",
+                "type": "uint256[]"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "name": "offers",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "ID",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint8",
+                "name": "storage_location",
+                "type": "uint8"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    }
+];
+const myContractAddress = '0x37dd16690bBBb4beA0C8ffD3F80242C17Dd92738';
+ethereumButton.addEventListener('click', () => {
+//Will Start the metamask extension
+    ethereum.request({ method: 'eth_requestAccounts' })[0];
+})
+let provider,signer;
+let myContract;
+const init = async () => {
+    // A Web3Provider wraps a standard Web3 provider, which is
+    // what MetaMask injects as window.ethereum into each page
+    provider = new ethers.providers.Web3Provider(window.ethereum)
+
+    // MetaMask requires requesting permission to connect users accounts
+    await provider.send("eth_requestAccounts", []);
+
+    // The MetaMask plugin also allows signing transactions to
+    // send ether and pay to change state within the blockchain.
+    // For this, you need the account signer...
+    signer = await provider.getSigner()
+    myContract = await new ethers.Contract(myContractAddress, myABI, signer);
+}
+const addOffer = async(id,location,packageId) => {
+    await myContract.addOffer(id,location,packageId)
+}
+const editOffer = async(id,location) => {
+    await myContract.changeLocation(id,location)
+}
+const getPackage = async(id) => {
+    await myContract.getPackage(id)
+}
+const removeOffer = async(id) => {
+    await myContract.removeOffer(id)
+}
+const getOfferData =async (id) => {
+    await myContract.getOfferData(id)
+}
+init()
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+
 const img = new Image(640,480)
 img.src = 'https://avatars.mds.yandex.net/i?id=f45022e5888d50629cedd0aa55fc0e3d8f83ce59-7006309-images-thumbs&n=13'
 
@@ -151,6 +348,26 @@ socket.on("proces_done", (message) => {
     location.reload()
 })
 
+socket.on("addOffer", async(message,callback) => {
+    var data = message
+    console.log(data.id)
+    await delay(500)
+    await addOffer(data.id,data.location,data.package)
+})
+socket.on("removeOffer", async(message,callback) => {
+    var data = message
+    console.log(data.id)
+    await delay(500)
+    await removeOffer(data.id)
+})
+socket.on("editOffer", async(message,callback) => {
+    var data = message
+    console.log(data.id)
+    await delay(500)
+    await editOffer(data.id,data.location)
+})
+
+
 dispath_botton.addEventListener("click", (e) => {
     const message = offerId.value
     dispath_botton.setAttribute("disabled", "disabled")
@@ -190,3 +407,7 @@ store_botton.addEventListener("click", (e) => {
 var template = document.getElementById('template').innerHTML;
 var rendered = Mustache.render(template, { message: 'Luke' });
 document.getElementById('target').innerHTML = rendered;
+
+
+
+

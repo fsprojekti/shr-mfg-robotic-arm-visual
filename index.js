@@ -7,7 +7,7 @@ const circle = require("./src/visual")
 const { json } = require("express")
 const {Move_Load_location, Move_Unload_location,
       Move_dock_location, dock_location, delay}  = require("./src/location")
-const {robot_auto} = require("./src/motion")
+const {robot_auto,edit_eth,remove_eth,add_eth,eth_data} = require("./src/motion")
 const {task_queue, dispatch} = require("./src/task")
 const { Offer, offer, removeOffer, getPackageData, save_Offer_to_JSON_file, getIndexOfId, Add_offer, reverse_package, edit_offer, push_package } = require("./Offer")
 
@@ -117,7 +117,15 @@ io.on("connection",async (socket) => {
         console.log(task_queue)
         callback()
     })
-
+    if(add_eth === false){
+        io.emit("addOffer", eth_data)
+    }
+    if(remove_eth === false){
+        io.emit("removeOffer", eth_data)
+    }
+    if(edit_eth === false){
+        io.emit("editOffer", eth_data)
+    }
 })
 
 // HTTP API get package data in any location

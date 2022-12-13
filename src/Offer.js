@@ -96,7 +96,7 @@ const save_Offer_to_JSON_file =async () => {
     }
 
 
-module.exports = {Offer,getIndexOfId,Add_offer,reverse_package,edit_offer,push_package,removeOffer,save_Offer_to_JSON_file,getPackageData,offer}
+module.exports = {Offer,Add_offer,reverse_package,edit_offer,push_package,removeOffer,save_Offer_to_JSON_file,getPackageData,getIndexOfId,offer}
 
 /* Add_offer(12,2)
 //console.log(offer)

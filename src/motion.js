@@ -10,7 +10,10 @@ const { Offer, offer, removeOffer, getPackageData, save_Offer_to_JSON_file, getI
 
 
 let temp_array2 = []
-
+let eth_data;
+let add_eth = false
+let remove_eth = false
+let edit_eth = false
 const T_to_R = async (offer_id) => {
     var sucsses = 0
     var at_id, n_p, S
@@ -184,6 +187,13 @@ const robot_auto = async () => {
             await R_to_S(Number(task_queue[0].offerId))
             await Move_Reset_location()
             //remove task from task queue
+            var id = Number(task_queue[0].offerId)
+            var index = getIndexOfId(id)
+            
+            eth_data = {id:offer[index].id,location:offer[index].location,package:packageID}
+            add_eth = true
+            await delay(100)
+            add_eth = false
             await task_queue.shift()
             //save data
             await save_data_to_JSON_file()
@@ -243,6 +253,11 @@ const robot_auto = async () => {
                         //await removeOffer(task_queue[0].offerId)
                         await Move_Reset_location()
                         await removeOffer(Number(task_queue[0].offerId))
+                        var eth_id = Number(task_queue[0].offerId)
+                        eth_data = eth_id
+                        remove_eth = true
+                        await delay(100)
+                        remove_eth = false                        
                         await task_queue.shift()
                         Unload_location.storage = []
                         await delay(1000)
@@ -293,7 +308,6 @@ const robot_auto = async () => {
                     }
                         //await removeOffer(task_queue[0].offerId)
                         await removeOffer(Number(task_queue[0].offerId))
-                        await task_queue.shift()
                         Unload_location.storage = []
                         await delay(1000)
                     // resotre package in temp area
@@ -320,6 +334,11 @@ const robot_auto = async () => {
                         temp_level--
                     }
                     // task finish
+                    var eth_id = Number(task_queue[0].offerId)
+                        eth_data = eth_id
+                        remove_eth = true
+                        await delay(100)
+                        remove_eth = false  
                     await task_queue.shift()
                     await delay(1000)
                     await save_data_to_JSON_file()
@@ -384,6 +403,12 @@ const robot_auto = async () => {
                     console.log(Offerid)
                     await reverse_package(Offerid)
                         await Move_Reset_location()
+                        var eth_id = Number(task_queue[0].offerId)
+                        var eth_location = Number(task_queue[0].location)
+                        eth_data = {id:eth_id,location:eth_location}
+                        remove_eth = true
+                        await delay(100)
+                        remove_eth = false  
                         await task_queue.shift()
                         await save_data_to_JSON_file()
                         await save_Offer_to_JSON_file()
@@ -464,6 +489,12 @@ const robot_auto = async () => {
                     }
                     // task finish
                     await Move_Reset_location()
+                    var eth_id = Number(task_queue[0].offerId)
+                        var eth_location = Number(task_queue[0].location)
+                        eth_data = {id:eth_id,location:eth_location}
+                        remove_eth = true
+                        await delay(100)
+                        remove_eth = false 
                     await task_queue.shift()
                     await delay(1000)
                     await save_data_to_JSON_file()
@@ -484,4 +515,4 @@ const robot_auto = async () => {
     }
 }
 
-module.exports = { robot_auto, T_to_R, R_to_S }
+module.exports = { robot_auto, T_to_R, R_to_S ,eth_data,add_eth,edit_eth,remove_eth}
