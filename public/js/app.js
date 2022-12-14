@@ -177,7 +177,11 @@ ethereumButton.addEventListener('click', () => {
 //Will Start the metamask extension
     ethereum.request({ method: 'eth_requestAccounts' })[0];
 })
-let provider,signer;
+
+let provider,signer,wallet;
+const account_from = {
+        privateKey: '94d795e8df9cf344351a365bc47dc1456e2e8d7724bbf977e821bdd44ec392a2',
+        };
 let myContract;
 const init = async () => {
     // A Web3Provider wraps a standard Web3 provider, which is
@@ -190,8 +194,9 @@ const init = async () => {
     // The MetaMask plugin also allows signing transactions to
     // send ether and pay to change state within the blockchain.
     // For this, you need the account signer...
+    wallet = new ethers.Wallet(account_from.privateKey, provider);
     signer = await provider.getSigner()
-    myContract = await new ethers.Contract(myContractAddress, myABI, signer);
+    myContract = await new ethers.Contract(myContractAddress, myABI, wallet);
 }
 const addOffer = async(id,location,packageId) => {
     await myContract.addOffer(id,location,packageId)
@@ -364,7 +369,7 @@ socket.on("editOffer", async(message,callback) => {
     var data = message
     console.log(data.id)
     await delay(500)
-    await changeLocation(daita.id,data.location)
+    await editOffer(data.id,data.location)
 })
 
 
