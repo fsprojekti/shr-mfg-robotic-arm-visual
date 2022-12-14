@@ -117,13 +117,13 @@ io.on("connection",async (socket) => {
         console.log(task_queue)
         callback()
     })
-    if(add_eth === false){
+    if(add_eth === true){
         io.emit("addOffer", eth_data)
     }
-    if(remove_eth === false){
+    if(remove_eth === true){
         io.emit("removeOffer", eth_data)
     }
-    if(edit_eth === false){
+    if(edit_eth === true){
         io.emit("editOffer", eth_data)
     }
 })

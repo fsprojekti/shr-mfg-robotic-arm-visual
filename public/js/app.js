@@ -364,7 +364,7 @@ socket.on("editOffer", async(message,callback) => {
     var data = message
     console.log(data.id)
     await delay(500)
-    await editOffer(data.id,data.location)
+    await changeLocation(daita.id,data.location)
 })
 
 
