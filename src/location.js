@@ -108,7 +108,7 @@ function delay(ms) {
 //Move to load_location
 const Move_Load_location =async (z=100) => {
     await MoveTo(Load_location.x, Load_location.y, z)
-    await delay(3000)
+    await delay(2000)
 }
 
 //Move to dispatch buffer
@@ -144,12 +144,12 @@ const Move_Unload_location =async () => {
     var z = (Unload_location.storage.length * package_height) + package_height + 20 + 60
     
     MoveTo(Unload_location.x, Unload_location.y, z)
-    await delay(3000)
+    await delay(2500)
 }
 
 const Move_Reset_location =async () => {
     MoveTo(reset_location.x, reset_location.y, reset_location.z)
-    await delay(3000)
+    await delay(2000)
 }
 
 const Move_dock_location =async (i,mode) => {
@@ -167,7 +167,7 @@ const Move_dock_location =async (i,mode) => {
                 "z:",z )
                 
     MoveTo(dock_location[i].x, dock_location[i].y, z)
-    await delay(3000)
+    await delay(2500)
 } 
 
 module.exports = {Move_Load_location, Move_Unload_location, 

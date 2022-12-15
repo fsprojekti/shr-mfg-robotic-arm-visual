@@ -4,10 +4,9 @@ const socketio = require("socket.io")
 const http = require("http")
 const {MoveTo, Move, suction, getState} = require("./src/http-API")
 const circle = require("./src/visual") 
-const { json } = require("express")
 const {Move_Load_location, Move_Unload_location,
       Move_dock_location, dock_location, delay}  = require("./src/location")
-const {robot_auto,edit_eth,remove_eth,add_eth,eth_data} = require("./src/motion")
+const {robot_auto,state_eth, eth_data} = require("./src/motion")
 const {task_queue, dispatch} = require("./src/task")
 const { Offer, offer, removeOffer, getPackageData, save_Offer_to_JSON_file, getIndexOfId, Add_offer, reverse_package, edit_offer, push_package } = require("./Offer")
 
@@ -117,15 +116,6 @@ io.on("connection",async (socket) => {
         console.log(task_queue)
         callback()
     })
-    if(add_eth === true){
-        io.emit("addOffer", eth_data)
-    }
-    if(remove_eth === true){
-        io.emit("removeOffer", eth_data)
-    }
-    if(edit_eth === true){
-        io.emit("editOffer", eth_data)
-    }
 })
 
 // HTTP API get package data in any location
@@ -196,9 +186,25 @@ setInterval(async () => {
         if(robot_runing !== true){
             robot_runing = true
             console.log("robot running")
+            console.log("state of add:",state_eth.add_eth)
             await robot_auto()
-            robot_runing = false
-            
+            console.log("state_eth:",state_eth.add_eth)
+            var eth_data_copy = eth_data
+            console.log(eth_data_copy)
+            if(state_eth.add_eth === true){
+                io.emit("addOffer", eth_data)
+                console.log(eth_data)
+                state_eth.add_eth = false
+            }
+            if(state_eth.remove_eth === true){
+                io.emit("removeOffer", eth_data)
+                state_eth.remove_eth = false
+            }
+            if(state_eth.edit_eth === true){
+                io.emit("editOffer", eth_data)
+                state_eth.edit_eth = false
+            }
+            robot_runing = false            
         }
     }
 }, 1000)

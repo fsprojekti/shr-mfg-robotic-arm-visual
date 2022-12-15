@@ -32,6 +32,7 @@ const download_image =async (url, image_path) => {
   })
 }
 
+
 //download image from url slower than function download_image
  async function snapshot() {
   const browser = await puppeteer.launch();

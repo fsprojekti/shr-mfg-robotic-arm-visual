@@ -7,20 +7,23 @@ const { suction, Move, MoveTo, getState } = require("./http-API")
 const circle = require("./visual")
 const { getCenter_py, getId, getNumberPackage_py,calculateHeigh_py } = require("./visual_py")
 const { Offer, offer, removeOffer, getPackageData, save_Offer_to_JSON_file, getIndexOfId, Add_offer, reverse_package, edit_offer, push_package } = require("./Offer")
-
-
 let temp_array2 = []
-let eth_data;
-let add_eth = false
-let remove_eth = false
-let edit_eth = false
+let eth_data = {
+    id:0,
+    location:0,
+    package:[]
+}
+let state_eth = {
+    add_eth: false,
+    remove_eth:false,
+    edit_eth:false
+}
 const T_to_R = async (offer_id) => {
     var sucsses = 0
     var at_id, n_p, S
     var dx1, dy1, dx, dy
     // move to location to fetch package
     await Move_Load_location(200)
-    /*await download_image(circle.url,circle.file_path) */
     // calculate dx and dy needed to move robot to collinear center camera and package center in z cordinate 
     await getCenter_py().then((data) => {
         dx1 = data.x
@@ -87,11 +90,11 @@ const T_to_R = async (offer_id) => {
         await delay(2000)
         await Move(0, 0, 60)
         await delay(1500)
-        // if package is not only one. turn back location where is package
-        if(n_p!==1){
-            await MoveTo(absx,absy,h)
-            await delay(2500)
+        if(n_p !== 1){
+            await MoveTo(absx,absy,200)
+            await delay(1500)
         }
+        
         // push packge id to array
         try {
             await push_package(offer_id, Number(at_id))
@@ -182,24 +185,33 @@ const robot_auto = async () => {
             if(Step1 !== 1){
                 return console.log("Step 1 error.")
             }
-            await Move_Reset_location()
+            
             // Move package from receive buffer to dock
             await R_to_S(Number(task_queue[0].offerId))
             await Move_Reset_location()
-            //remove task from task queue
+            //remove task from task queue 
             var id = Number(task_queue[0].offerId)
-            var index = getIndexOfId(id)
+            var index = await getIndexOfId(id)     
             
-            eth_data = {id:offer[index].id,location:offer[index].location,package:packageID}
-            add_eth = true
-            await delay(100)
-            add_eth = false
+            var eth_id = offer[index].id
+            var eth_location =offer[index].location
+            var eth_package = offer[index].packageID
+            eth_data.id = eth_id
+            eth_data.location = eth_location
+            eth_data.package = eth_package
+            console.log(eth_data)
+            state_eth.add_eth = true
+            try{
             await task_queue.shift()
             //save data
             await save_data_to_JSON_file()
             await save_Offer_to_JSON_file()
             await delay(1000)
             console.log("task done")
+            } catch(e) {
+                console.log(e)
+            }
+            
         }
         else if (task_queue[0].mode === "unload") {
             // check offer id is exist
@@ -254,10 +266,9 @@ const robot_auto = async () => {
                         await Move_Reset_location()
                         await removeOffer(Number(task_queue[0].offerId))
                         var eth_id = Number(task_queue[0].offerId)
-                        eth_data = eth_id
-                        remove_eth = true
-                        await delay(100)
-                        remove_eth = false                        
+                        eth_data.id = eth_id
+                        state_eth.remove_eth = true
+                        console.log(eth_data)                       
                         await task_queue.shift()
                         Unload_location.storage = []
                         await delay(1000)
@@ -335,10 +346,8 @@ const robot_auto = async () => {
                     }
                     // task finish
                     var eth_id = Number(task_queue[0].offerId)
-                        eth_data = eth_id
-                        remove_eth = true
-                        await delay(100)
-                        remove_eth = false  
+                        eth_data.id = eth_id
+                        state_eth.remove_eth = true
                     await task_queue.shift()
                     await delay(1000)
                     await save_data_to_JSON_file()
@@ -405,10 +414,9 @@ const robot_auto = async () => {
                         await Move_Reset_location()
                         var eth_id = Number(task_queue[0].offerId)
                         var eth_location = Number(task_queue[0].location)
-                        eth_data = {id:eth_id,location:eth_location}
-                        remove_eth = true
-                        await delay(100)
-                        remove_eth = false  
+                        eth_data.id = eth_id
+                        eth_data.location = eth_location
+                        state_eth.edit_eth = true
                         await task_queue.shift()
                         await save_data_to_JSON_file()
                         await save_Offer_to_JSON_file()
@@ -490,11 +498,10 @@ const robot_auto = async () => {
                     // task finish
                     await Move_Reset_location()
                     var eth_id = Number(task_queue[0].offerId)
-                        var eth_location = Number(task_queue[0].location)
-                        eth_data = {id:eth_id,location:eth_location}
-                        remove_eth = true
-                        await delay(100)
-                        remove_eth = false 
+                    var eth_location = Number(task_queue[0].location)
+                    eth_data.id = eth_id
+                    eth_data.location = eth_location
+                    state_eth.edit_eth = true
                     await task_queue.shift()
                     await delay(1000)
                     await save_data_to_JSON_file()
@@ -515,4 +522,4 @@ const robot_auto = async () => {
     }
 }
 
-module.exports = { robot_auto, T_to_R, R_to_S ,eth_data,add_eth,edit_eth,remove_eth}
+module.exports = { robot_auto, T_to_R, R_to_S ,eth_data,state_eth}

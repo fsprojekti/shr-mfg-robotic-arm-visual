@@ -103,9 +103,9 @@ module.exports = {Offer,Add_offer,reverse_package,edit_offer,push_package,remove
 Add_offer(12,2)
 push_package(12,123)
 push_package(12,124)
-console.log(offer)
+//console.log(offer)
 reverse_package(1)
 //removeOffer(12)
 //removeOffer(13)
 console.log(offer)
-console.log(getPackageData(12)) */
+console.log() */
