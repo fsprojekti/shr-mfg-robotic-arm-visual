@@ -45,18 +45,22 @@ contract warehouse {
         }
         return data;
     }
+
     function removeOffer(uint256 ID) public {
         uint256 len = offers.length;
         uint256 index;
-        for(uint256 i = 0;i <= len-1; i++){
-            if(offers[i].ID == ID){
+        uint256 len_p = PackageData[ID].length;
+        for (uint256 i = 0; i <= len - 1; i++) {
+            if (offers[i].ID == ID) {
                 index = i;
             }
         }
-        require(index < offers.length,"index out of bound");
-
-        for (uint k = index; k < offers.length - 1; k++){
-            offers[k] = offers [k+1];
+        require(index < offers.length, "index out of bound");
+        for (uint256 k = index; k < offers.length - 1; k++) {
+            offers[k] = offers[k + 1];
+        }
+        for (uint256 j = 0; j <= len_p - 1; j++){
+            PackageData[ID].pop();
         }
         offers.pop();
     }
