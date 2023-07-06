@@ -1,246 +1,251 @@
-const { task_queue } = require("./task")
-const { Move_Load_location,
-    Move_Unload_location, delay,
-    Move_dock_location, Move_dispatch_buffer, receive_buffer, dispatch_buffer, Move_receive_buffer,
-    dock_location, Unload_location,temp_array, storage_location, Move_Reset_location, save_data_to_JSON_file, package_height } = require("./location")
-const { suction, Move, MoveTo, getState } = require("./http-API")
-const circle = require("./visual")
-const { getCenter_py, getId, getNumberPackage_py,calculateHeigh_py } = require("./visual_py")
-const { Offer, offer, removeOffer, getPackageData, save_Offer_to_JSON_file, getIndexOfId, Add_offer, reverse_package, edit_offer, push_package } = require("./Offer")
-let temp_array2 = []
+const {task_queue} = require("./task");
+const {
+    moveToLoadLocation, moveToUnloadLocation, moveToDockLocation, moveToDispatchBuffer, moveToReceiveBuffer,
+    moveToResetLocation, receive_buffer, dispatch_buffer, storage_location, dock_location, unload_location, delay,
+    saveDataToJSONFile, package_height} = require("./location");
+const {suction, move, moveTo} = require("./httpAPI");
+const circle = require("./visual");
+const {getId, getCenterPy, calculateHeightPy, getNumberOfPackagesPy} = require("./visual_py");
+const {
+    offer, removeOffer, getPackageData, saveOfferToJSONFile, getIndexOfId, addOffer, reversePackage,
+    editOffer, pushPackage
+} = require("./offer");
+
+let temp_array2 = [];
 let eth_data = {
-    id:0,
-    location:0,
-    package:[]
-}
+    id: 0,
+    location: 0,
+    package: []
+};
 let state_eth = {
     add_eth: false,
-    remove_eth:false,
-    edit_eth:false
-}
-const T_to_R = async (offer_id) => {
-    var sucsses = 0
-    var at_id, n_p, S
-    var dx1, dy1, dx, dy
+    remove_eth: false,
+    edit_eth: false
+};
+const moveFromLoadLocationToReceiveBuffer = async (offer_id) => {
+    let at_id, n_p, S;
+    let dx1, dy1, dx, dy;
     // move to location to fetch package
-    await Move_Load_location(200)
-    // calculate dx and dy needed to move robot to collinear center camera and package center in z cordinate 
-    await getCenter_py().then((data) => {
+    await moveToLoadLocation(200);
+    // calculate dx and dy needed to move robot to collinear center camera and package center in z coordinate
+    await getCenterPy().then((data) => {
         dx1 = data.x
         dy1 = data.y
-    })
-    await Move(dx1, dy1, 0)
+    });
+    await move(dx1, dy1, 0)
     //get area size ellipse twice,
     //for solution afterimage image
-    await calculateHeigh_py()
-    S = await calculateHeigh_py()
-    console.log(S)
-    // get number package in load location
+    await calculateHeightPy();
+    S = await calculateHeightPy();
+    console.log(S);
+    // get number of packages in load location
     try {
-        n_p = await getNumberPackage_py(S)
+        n_p = await getNumberOfPackagesPy(S);
     } catch (e) {
-        console.log(e)
+        console.log(e);
     }
     console.log("Package Height:", n_p)
     if (n_p === undefined || n_p === 0) {
-        return console.log("Package not find")
+        return console.log("Package not find");
     }
     // add new offer
     try {
-        await Add_offer(offer_id, "receive buffer")
-    } catch (e) { }
-    var c = 0
+        await addOffer(offer_id, "receive buffer")
+    } catch (e) {
+    }
+    let c = 0;
     for (n_p; n_p >= 1; n_p--) {
-        var absx,absy
-        var h = (200 - (n_p - 1) * package_height)
-        // it height to need on top of package for calculate dx and dy
-        var s = (h - 100) * -1
-        await Move(0, 0, s)
-        await delay(1500)
+        let absx, absy;
+        let h = (200 - (n_p - 1) * package_height);
+        // its height to need on top of package for calculate dx and dy
+        let s = (h - 100) * -1;
+        await move(0, 0, s);
+        await delay(1500);
         // calculate just first time in task
         if (c === 0) {
-            await getCenter_py(0.17).then(d => {
-                dx = d.x
-                dy = d.y
-                c++
+            await getCenterPy(0.17).then(d => {
+                dx = d.x;
+                dy = d.y;
+                c++;
             })
-            await Move(dx, dy, 0)
-            await delay(1000)
-            //save abs. cordinate
-            absx = 135 + dx1 + dx
-            absy = -135 + dy1 +dy
+            await move(dx, dy, 0);
+            await delay(1000);
+            //save abs. coordinate
+            absx = 135 + dx1 + dx;
+            absy = -135 + dy1 + dy;
         }
-        //get apritag id
-        at_id = await getId()
+        //get apriltag id
+        at_id = await getId();
         //offset suction and camera
-        await circle.offsetToll()
-        await delay(1500)
-        console.log("package Id:", Number(at_id))
-        await Move(0, 0, -35)
-        await delay(1500)
-        await suction(true)
-        await delay(1500)
-        await Move(0, 0, 60)
-        await delay(1500)
+        await circle.offsetToll();
+        await delay(1500);
+        console.log("package Id:", Number(at_id));
+        await move(0, 0, -35);
+        await delay(1500);
+        await suction(true);
+        await delay(1500);
+        await move(0, 0, 60);
+        await delay(1500);
         //move to receive buffer
-        await Move_receive_buffer("load")
-        await Move(0, 0, -20)
-        await delay(1000)
-        await suction(false)
-        await delay(2000)
-        await Move(0, 0, 60)
-        await delay(1500)
-        if(n_p !== 1){
-            await MoveTo(absx,absy,200)
-            await delay(1500)
+        await moveToReceiveBuffer("load");
+        await move(0, 0, -20);
+        await delay(1000);
+        await suction(false);
+        await delay(2000);
+        await move(0, 0, 60);
+        await delay(1500);
+        if (n_p !== 1) {
+            await moveTo(absx, absy, 200);
+            await delay(1500);
         }
-        
-        // push packge id to array
+
+        // push package id to array
         try {
-            await push_package(offer_id, Number(at_id))
-        } catch (e) { }
-        await receive_buffer.storage.push(Number(at_id))
+            await pushPackage(offer_id, Number(at_id));
+        } catch (e) {
+        }
+        receive_buffer.storage.push(Number(at_id));
     }
-    return sucsses = 1
+    return 1;
 }
 
 //move from receive buffer to dock location
-const R_to_S = async (offer_id) => {
+const moveFromReceiveBufferToDockLocation = async (offer_id) => {
     try {
-        var i = receive_buffer.storage.length
-        console.log(i)
-        var location = storage_location()
+        let i = receive_buffer.storage.length;
+        console.log(i);
+        let location = storage_location();
         for (i; i >= 1; i--) {
-            await Move_receive_buffer("unload")
-            await Move(0, 0, -20)
-            await delay(1000)
-            await suction(true)
-            await delay(1500)
-            await Move(0, 0, 60)
-            await delay(1500)
-            await Move_dock_location(location, "load")
-            await Move(0, 0, -20)
-            await delay(1000)
-            await suction(false)
-            await delay(2000)
-            await Move(0, 0, 60)
-            await delay(2000)
+            await moveToReceiveBuffer("unload");
+            await move(0, 0, -20);
+            await delay(1000);
+            await suction(true);
+            await delay(1500);
+            await move(0, 0, 60);
+            await delay(1500);
+            await moveToDockLocation(location, "load");
+            await move(0, 0, -20);
+            await delay(1000);
+            await suction(false);
+            await delay(2000);
+            await move(0, 0, 60);
+            await delay(2000);
             try {
-                await dock_location[location].storage.push(receive_buffer.storage.pop())
+                dock_location[location].storage.push(receive_buffer.storage.pop());
             } catch (e) {
-                console.log(e)
+                console.log(e);
             }
-
-            console.log(dock_location[location].storage)
+            console.log(dock_location[location].storage);
             try {
-                await edit_offer(offer_id, location)
-            } catch (e) { }
+                await editOffer(offer_id, location);
+            } catch (e) {
+            }
         }
-        await reverse_package(Number(offer_id))
+        await reversePackage(Number(offer_id));
     } catch (e) {
-
     }
-
 }
 
 //move from dock location to dispatch buffer
-const S_to_D = async (i) => {
-    await Move_dock_location(i, "unload")
-    await Move(0, 0, -20)
-    await delay(1000)
-    await suction(true)
-    await delay(1500)
-    await Move(0, 0, 60)
-    await delay(1500)
-    await Move_dispatch_buffer("load")
-    await Move(0, 0, -20)
-    await delay(1000)
-    await suction(false)
-    await delay(2000)
-    await Move(0, 0, 60)
+const moveFromDockLocationToDispatchBuffer = async (i) => {
+    await moveToDockLocation(i, "unload");
+    await move(0, 0, -20);
+    await delay(1000);
+    await suction(true);
+    await delay(1500);
+    await move(0, 0, 60);
+    await delay(1500);
+    await moveToDispatchBuffer("load");
+    await move(0, 0, -20);
+    await delay(1000);
+    await suction(false);
+    await delay(2000);
+    await move(0, 0, 60);
 }
 
 //move from dispatch buffer to unload location
-const D_to_T = async () => {
-        await Move_dispatch_buffer("unload")
-        await Move(0, 0, -20)
-        await delay(1000)
-        await suction(true)
-        await delay(1500)
-        await Move(0, 0, 60)
-        await delay(1500)
-        await Move_Unload_location()
-        await Move(0, 0, -20)
-        await delay(1000)
-        await suction(false)
-        await delay(2000)
-        await Move(0, 0, 60)
+const moveFromDispatchBufferToUnloadLocation = async () => {
+    await moveToDispatchBuffer("unload");
+    await move(0, 0, -20);
+    await delay(1000);
+    await suction(true);
+    await delay(1500);
+    await move(0, 0, 60);
+    await delay(1500);
+    await moveToUnloadLocation();
+    await move(0, 0, -20);
+    await delay(1000);
+    await suction(false);
+    await delay(2000);
+    await move(0, 0, 60);
 }
 
-const robot_auto = async () => {
+//process tasks in queue
+const processTask = async () => {
     if (task_queue[0] !== undefined) {
         if (task_queue[0].mode === "load") {
             // Move package from transport car to receive buffer
-            var Step1 = await T_to_R(Number(task_queue[0].offerId))
-            if(Step1 !== 1){
-                return console.log("Step 1 error.")
+            let step1 = await moveFromLoadLocationToReceiveBuffer(Number(task_queue[0].offerId));
+            if (step1 !== 1) {
+                return console.log("Step 1 error.");
             }
-            
-            // Move package from receive buffer to dock
-            await R_to_S(Number(task_queue[0].offerId))
-            await Move_Reset_location()
+
+            // move package from receive buffer to dock
+            await moveFromReceiveBufferToDockLocation(Number(task_queue[0].offerId));
+            await moveToResetLocation();
             //remove task from task queue 
-            var id = Number(task_queue[0].offerId)
-            var index = await getIndexOfId(id)     
-            
-            var eth_id = offer[index].id
-            var eth_location =offer[index].location
-            var eth_package = offer[index].packageID
-            eth_data.id = eth_id
-            eth_data.location = eth_location
-            eth_data.package = eth_package
-            console.log(eth_data)
-            state_eth.add_eth = true
-            try{
-            await task_queue.shift()
-            //save data
-            await save_data_to_JSON_file()
-            await save_Offer_to_JSON_file()
-            await delay(1000)
-            console.log("task done")
-            } catch(e) {
-                console.log(e)
+            let id = Number(task_queue[0].offerId);
+            let index = await getIndexOfId(id);
+
+            let eth_id = offer[index].id;
+            let eth_location = offer[index].location;
+            let eth_package = offer[index].packageID;
+            eth_data.id = eth_id;
+            eth_data.location = eth_location;
+            eth_data.package = eth_package;
+            // console.log(eth_data);
+            state_eth.add_eth = true;
+            try {
+                await task_queue.shift();
+                //save data
+                await saveDataToJSONFile();
+                await saveOfferToJSONFile();
+                await delay(1000);
+                console.log("task done");
+            } catch (e) {
+                console.log("error saving data/offer to JSON file");
+                // console.log(e);
             }
-            
-        }
-        else if (task_queue[0].mode === "unload") {
-            // check offer id is exist
-            try{
-                var packageData = await getPackageData(Number(task_queue[0].offerId))
-                var packageData_len = packageData.length
-                console.log("package length: ",packageData_len)
-                console.log(packageData[packageData_len - 1])
-            } catch(e){
-                console.log("Offer Id :",task_queue[0].offerId,"dont exist.")
-                return task_queue.shift()     
+
+        } else if (task_queue[0].mode === "unload") {
+            // check if offer id exists
+            let packageData, packageData_len;
+            try {
+                packageData = await getPackageData(Number(task_queue[0].offerId));
+                packageData_len = packageData.length;
+                console.log("package length: ", packageData_len);
+                console.log(packageData[packageData_len - 1]);
+            } catch (e) {
+                console.log("Offer Id :", task_queue[0].offerId, " doesn't exist.");
+                return task_queue.shift();
             }
             // find i = dock location; and find j = level
-            var i, j
+            let i, j;
             for (i = 1; i <= 4; i++) {
-                var found = 0
-                var dock_lent = dock_location[i].storage.length
-                for(dock_lent;dock_lent>=1;dock_lent--){
-                    if(dock_location[i].storage[dock_lent-1] === packageData[packageData_len-1]){
-                    j = dock_lent - 1
-                    found = 1
-                    console.log(j)
-                    break
+                let found = 0;
+                let dock_lent = dock_location[i].storage.length;
+                for (dock_lent; dock_lent >= 1; dock_lent--) {
+                    if (dock_location[i].storage[dock_lent - 1] === packageData[packageData_len - 1]) {
+                        j = dock_lent - 1;
+                        found = 1;
+                        console.log(j);
+                        break;
                     }
                 }
-                // when is found , break this for loop
-                if(found === 1){
-                        break
-                    }
+                // when it is found, break this for loop
+                if (found === 1) {
+                    break;
+                }
             }
             //when offer id is found
             if (j !== -1) {
@@ -248,278 +253,266 @@ const robot_auto = async () => {
                 if (j === (dock_location[i].storage.length - 1)) {
                     //move from dock location to dispatch buffer
                     for (packageData_len; packageData_len >= 1; packageData_len--) {
-                        await S_to_D(i)
-                        await Move_Reset_location()
-                        await dispatch_buffer.storage.push(dock_location[i].storage.pop())
-                        
+                        await moveFromDockLocationToDispatchBuffer(i);
+                        await moveToResetLocation();
+                        dispatch_buffer.storage.push(dock_location[i].storage.pop());
                     }
-                    var dl=dispatch_buffer.storage.length
+                    let dl = dispatch_buffer.storage.length;
 
                     //move from dispatch buffer to unload area
-                    for(dl;dl>=1;dl--){
-                        await D_to_T(i)
-                        await Move(0,0,100)
-                        await delay(1500)
-                        await Unload_location.storage.push(dispatch_buffer.storage.pop())
+                    for (dl; dl >= 1; dl--) {
+                        await moveFromDispatchBufferToUnloadLocation(i);
+                        await move(0, 0, 100);
+                        await delay(1500);
+                        unload_location.storage.push(dispatch_buffer.storage.pop());
                     }
-                        //await removeOffer(task_queue[0].offerId)
-                        await Move_Reset_location()
-                        await removeOffer(Number(task_queue[0].offerId))
-                        var eth_id = Number(task_queue[0].offerId)
-                        eth_data.id = eth_id
-                        state_eth.remove_eth = true
-                        console.log(eth_data)                       
-                        await task_queue.shift()
-                        Unload_location.storage = []
-                        await delay(1000)
-                        await save_data_to_JSON_file()
-                        await save_Offer_to_JSON_file()
-                        console.log("task done")
+                    //await removeOffer(task_queue[0].offerId)
+                    await moveToResetLocation();
+                    await removeOffer(Number(task_queue[0].offerId));
+                    eth_data.id = Number(task_queue[0].offerId);
+                    state_eth.remove_eth = true;
+                    // console.log(eth_data);
+                    await task_queue.shift();
+                    unload_location.storage = [];
+                    await delay(1000);
+                    await saveDataToJSONFile();
+                    await saveOfferToJSONFile();
+                    console.log("task done");
                 }
-                //when offer is not in the heighest level
+                //when offer is not in the highest level
                 else {
                     // calculate how many package need to remove to get target package
-                    var k = dock_location[i].storage.length - 1 - j
-                    var temp_level = 0
+                    let k = dock_location[i].storage.length - 1 - j;
+                    let temp_level = 0;
                     // remove package on the target package
-                    for (var l = 0; l <= k - 1; l++) {
-                        await Move_dock_location(i, "unload")
-                        await Move(0, 0, -22)
-                        await delay(1000)
-                        await suction(true)
-                        await delay(1500)
-                        await Move(0, 0, 60)
-                        await delay(1500)
+                    for (let l = 0; l <= k - 1; l++) {
+                        await moveToDockLocation(i, "unload");
+                        await move(0, 0, -22);
+                        await delay(1000);
+                        await suction(true);
+                        await delay(1500);
+                        await move(0, 0, 60);
+                        await delay(1500);
                         // temp area
-                        await MoveTo(0, -120, 60 + (package_height * l) + package_height + 20)
-                        await delay(2000)
-                        await Move(0, 0, -20)
-                        await delay(1000)
-                        await suction(false)
-                        await delay(2000)
-                        await Move(0, 0, 100)
-                        await delay(1500)
-                        await temp_array2.push(dock_location[i].storage.pop())
-                        temp_level++
+                        await moveTo(0, -120, 60 + (package_height * l) + package_height + 20);
+                        await delay(2000);
+                        await move(0, 0, -20);
+                        await delay(1000);
+                        await suction(false);
+                        await delay(2000);
+                        await move(0, 0, 100);
+                        await delay(1500);
+                        temp_array2.push(dock_location[i].storage.pop());
+                        temp_level++;
                     }
                     // move target package to unload area
                     for (packageData_len; packageData_len >= 1; packageData_len--) {
-                        await S_to_D(i)
-                        await Move(0,0,100)
+                        await moveFromDockLocationToDispatchBuffer(i)
+                        await move(0, 0, 100)
                         await delay(1500)
-                        await dispatch_buffer.storage.push(dock_location[i].storage.pop())
-                        
+                        dispatch_buffer.storage.push(dock_location[i].storage.pop())
                     }
-                    var dl=dispatch_buffer.storage.length
-                    for(dl;dl>=1;dl--){
-                        await D_to_T(i)
-                        await Move(0,0,100)
-                        await delay(1500)
-                        await Unload_location.storage.push(dispatch_buffer.storage.pop())
+                    let dl = dispatch_buffer.storage.length;
+                    for (dl; dl >= 1; dl--) {
+                        await moveFromDispatchBufferToUnloadLocation(i);
+                        await move(0, 0, 100);
+                        await delay(1500);
+                        unload_location.storage.push(dispatch_buffer.storage.pop());
                     }
-                        //await removeOffer(task_queue[0].offerId)
-                        await removeOffer(Number(task_queue[0].offerId))
-                        Unload_location.storage = []
-                        await delay(1000)
-                    // resotre package in temp area
-                    var temp_var_for = JSON.parse(JSON.stringify(temp_level))
-                    for (var n = 0; n < temp_var_for; n++) {
-                        await MoveTo(0, -120, 53 + (package_height * temp_level) + 20)
-                        await delay(2000)
-                        await Move(0, 0, -20)
-                        await delay(1500)
-                        await suction(true)
-                        await delay(1500)
-                        await Move(0, 0, 60)
-                        await delay(1500)
-                        await Move_dock_location(i, "load")
-                        await Move(0, 0, -20)
-                        await delay(1000)
-                        await suction(false)
-                        await delay(2000)
-                        await Move(0, 0, 60)
-                        await delay(1500)
-                        await Move_Reset_location()
-                        await dock_location[i].storage.push(temp_array2.pop())
-                        await delay(1000)
-                        temp_level--
+                    //await removeOffer(task_queue[0].offerId)
+                    await removeOffer(Number(task_queue[0].offerId));
+                    unload_location.storage = [];
+                    await delay(1000);
+                    // restore package in temp area
+                    let temp_let_for = JSON.parse(JSON.stringify(temp_level));
+                    for (let n = 0; n < temp_let_for; n++) {
+                        await moveTo(0, -120, 53 + (package_height * temp_level) + 20);
+                        await delay(2000);
+                        await move(0, 0, -20);
+                        await delay(1500);
+                        await suction(true);
+                        await delay(1500);
+                        await move(0, 0, 60);
+                        await delay(1500);
+                        await moveToDockLocation(i, "load");
+                        await move(0, 0, -20);
+                        await delay(1000);
+                        await suction(false);
+                        await delay(2000);
+                        await move(0, 0, 60);
+                        await delay(1500);
+                        await moveToResetLocation();
+                        dock_location[i].storage.push(temp_array2.pop());
+                        await delay(1000);
+                        temp_level--;
                     }
                     // task finish
-                    var eth_id = Number(task_queue[0].offerId)
-                        eth_data.id = eth_id
-                        state_eth.remove_eth = true
-                    await task_queue.shift()
-                    await delay(1000)
-                    await save_data_to_JSON_file()
-                    await save_Offer_to_JSON_file()
-                    console.log("task done")
+                    eth_data.id = Number(task_queue[0].offerId);
+                    state_eth.remove_eth = true;
+                    await task_queue.shift();
+                    await delay(1000);
+                    await saveDataToJSONFile();
+                    await saveOfferToJSONFile();
+                    console.log("task done");
                 }
-
             }
-
         }
         //its similar code mode "unload"
         else if (task_queue[0].mode === "relocation") {
-            try{
-                var packageData = await getPackageData(Number(task_queue[0].offerId))
-                var packageData_len = packageData.length
-                console.log("package length: ",packageData_len)
-                console.log(packageData[packageData_len - 1])
-            } catch(e){
-                console.log("Offer Id :",task_queue[0].offerId,"dont exist.")
-                return task_queue.shift()     
+            let packageData, packageData_len;
+            try {
+                packageData = await getPackageData(Number(task_queue[0].offerId));
+                packageData_len = packageData.length;
+                console.log("package length: ", packageData_len);
+                console.log(packageData[packageData_len - 1]);
+            } catch (e) {
+                console.log("Offer Id :", task_queue[0].offerId, "doesn't exist.");
+                return task_queue.shift();
             }
             // i = dock location; j = level
-            var i, j
+            let i, j;
             for (i = 1; i <= 4; i++) {
-                var found = 0
-                var dock_lent = dock_location[i].storage.length
-                for(dock_lent;dock_lent>=1;dock_lent--){
-                    if(dock_location[i].storage[dock_lent-1] === packageData[packageData_len-1]){
-                    j = dock_lent - 1
-                    found = 1
-                    console.log(j)
-                    break
+                let found = 0;
+                let dock_lent = dock_location[i].storage.length;
+                for (dock_lent; dock_lent >= 1; dock_lent--) {
+                    if (dock_location[i].storage[dock_lent - 1] === packageData[packageData_len - 1]) {
+                        j = dock_lent - 1;
+                        found = 1;
+                        console.log(j);
+                        break;
                     }
                 }
-                if(found === 1){
-                        break
-                    }
+                if (found === 1) {
+                    break;
+                }
             }
             if (j !== -1) {
                 // check if OfferId package in the highest level 
                 if (j === (dock_location[i].storage.length - 1)) {
                     for (packageData_len; packageData_len >= 1; packageData_len--) {
-                        await Move_dock_location(i, "unload")
-                        await Move(0, 0, -20)
-                        await delay(1000)
-                        await suction(true)
-                        await delay(1500)
-                        await Move(0, 0, 60)
-                        await delay(1500)
-                        await Move_dock_location(task_queue[0].location, "load")
-                        await Move(0, 0, -20)
-                        await delay(1000)
-                        await suction(false)
-                        await delay(2000)
-                        await Move(0, 0, 100)
-                        await delay(1000)
-                        await dock_location[task_queue[0].location].storage.push(dock_location[i].storage.pop())
-                        await delay(1000)
+                        await moveToDockLocation(i, "unload");
+                        await move(0, 0, -20);
+                        await delay(1000);
+                        await suction(true);
+                        await delay(1500);
+                        await move(0, 0, 60);
+                        await delay(1500);
+                        await moveToDockLocation(task_queue[0].location, "load");
+                        await move(0, 0, -20);
+                        await delay(1000);
+                        await suction(false);
+                        await delay(2000);
+                        await move(0, 0, 100);
+                        await delay(1000);
+                        dock_location[task_queue[0].location].storage.push(dock_location[i].storage.pop());
+                        await delay(1000);
                     }
-                    var Offerid = (Number(task_queue[0].offerId))
-                    await edit_offer(Number(task_queue[0].offerId), Number(task_queue[0].location))
-                    console.log(Offerid)
-                    await reverse_package(Offerid)
-                        await Move_Reset_location()
-                        var eth_id = Number(task_queue[0].offerId)
-                        var eth_location = Number(task_queue[0].location)
-                        eth_data.id = eth_id
-                        eth_data.location = eth_location
-                        state_eth.edit_eth = true
-                        await task_queue.shift()
-                        await save_data_to_JSON_file()
-                        await save_Offer_to_JSON_file()
-                        console.log("task done")
-                }
-                else {
+                    let Offerid = (Number(task_queue[0].offerId));
+                    await editOffer(Number(task_queue[0].offerId), Number(task_queue[0].location));
+                    console.log(Offerid);
+                    await reversePackage(Offerid);
+                    await moveToResetLocation();
+                    let eth_id = Number(task_queue[0].offerId);
+                    let eth_location = Number(task_queue[0].location);
+                    eth_data.id = eth_id;
+                    eth_data.location = eth_location;
+                    state_eth.edit_eth = true;
+                    await task_queue.shift();
+                    await saveDataToJSONFile();
+                    await saveOfferToJSONFile();
+                    console.log("task done");
+                } else {
                     // calculate how many package need to remove to get target package
-                    var k = dock_location[i].storage.length - 1 - j
-                    var temp_level = 0
+                    let k = dock_location[i].storage.length - 1 - j;
+                    let temp_level = 0;
                     // remove package on the target package
-                    for (var l = 0; l <= k - 1; l++) {
-                        await Move_dock_location(i, "unload")
-                        await Move(0, 0, -22)
-                        await delay(1000)
-                        await suction(true)
-                        await delay(1500)
-                        await Move(0, 0, 60)
-                        await delay(1500)
+                    for (let l = 0; l <= k - 1; l++) {
+                        await moveToDockLocation(i, "unload");
+                        await move(0, 0, -22);
+                        await delay(1000);
+                        await suction(true);
+                        await delay(1500);
+                        await move(0, 0, 60);
+                        await delay(1500);
                         // temp area
-                        await MoveTo(0, -120, 60 + (package_height * l) + package_height + 20)
-                        await delay(2000)
-                        await Move(0, 0, -20)
-                        await delay(1000)
-                        await suction(false)
-                        await delay(2000)
-                        await Move(0, 0, 100)
-                        await delay(1500)
-                        await temp_array2.push(dock_location[i].storage.pop())
-                        temp_level++
+                        await moveTo(0, -120, 60 + (package_height * l) + package_height + 20);
+                        await delay(2000);
+                        await move(0, 0, -20);
+                        await delay(1000);
+                        await suction(false);
+                        await delay(2000);
+                        await move(0, 0, 100);
+                        await delay(1500);
+                        temp_array2.push(dock_location[i].storage.pop());
+                        temp_level++;
                     }
                     // move target package to target location
                     for (packageData_len; packageData_len >= 1; packageData_len--) {
-                        await Move_dock_location(i, "unload")
-                        await Move(0, 0, -20)
-                        await delay(1000)
-                        await suction(true)
-                        await delay(1500)
-                        await Move(0, 0, 60)
-                        await delay(1500)
-                        await Move_dock_location(task_queue[0].location, "load")
-                        await Move(0, 0, -20)
-                        await delay(1000)
-                        await suction(false)
-                        await delay(2000)
-                        await Move(0, 0, 100)
-                        await delay(1000)
-                        await dock_location[task_queue[0].location].storage.push(dock_location[i].storage.pop())
-                        await delay(1000)
+                        await moveToDockLocation(i, "unload");
+                        await move(0, 0, -20);
+                        await delay(1000);
+                        await suction(true);
+                        await delay(1500);
+                        await move(0, 0, 60);
+                        await delay(1500);
+                        await moveToDockLocation(task_queue[0].location, "load");
+                        await move(0, 0, -20);
+                        await delay(1000);
+                        await suction(false);
+                        await delay(2000);
+                        await move(0, 0, 100);
+                        await delay(1000);
+                        dock_location[task_queue[0].location].storage.push(dock_location[i].storage.pop());
+                        await delay(1000);
                     }
-                    var Offerid = (Number(task_queue[0].offerId))
-                    await edit_offer(Number(task_queue[0].offerId), Number(task_queue[0].location))
-                    console.log(Offerid)
-                    await reverse_package(Offerid)
-                    
-                    
+                    let Offerid = (Number(task_queue[0].offerId));
+                    await editOffer(Number(task_queue[0].offerId), Number(task_queue[0].location));
+                    console.log(Offerid);
+                    await reversePackage(Offerid);
 
-                    // resotre package of temp area
-                    var temp_var_for = JSON.parse(JSON.stringify(temp_level))
-                    for (var n = 0; n < temp_var_for; n++) {
-                        await MoveTo(0, -120, 53 + (package_height * temp_level) + 20)
-                        await delay(2000)
-                        await Move(0, 0, -20)
-                        await delay(1500)
-                        await suction(true)
-                        await delay(1500)
-                        await Move(0, 0, 60)
-                        await delay(1500)
-                        await Move_dock_location(i, "load")
-                        await Move(0, 0, -20)
-                        await delay(1000)
-                        await suction(false)
-                        await delay(2000)
-                        await Move(0, 0, 100)
-                        await delay(1500)
-                        await dock_location[i].storage.push(temp_array2.pop())
-                        await delay(1000)
-                        temp_level--
+                    // restore package of temp area
+                    let temp_let_for = JSON.parse(JSON.stringify(temp_level));
+                    for (let n = 0; n < temp_let_for; n++) {
+                        await moveTo(0, -120, 53 + (package_height * temp_level) + 20);
+                        await delay(2000);
+                        await move(0, 0, -20);
+                        await delay(1500);
+                        await suction(true);
+                        await delay(1500);
+                        await move(0, 0, 60);
+                        await delay(1500);
+                        await moveToDockLocation(i, "load");
+                        await move(0, 0, -20);
+                        await delay(1000);
+                        await suction(false);
+                        await delay(2000);
+                        await move(0, 0, 100);
+                        await delay(1500);
+                        dock_location[i].storage.push(temp_array2.pop());
+                        await delay(1000);
+                        temp_level--;
                     }
                     // task finish
-                    await Move_Reset_location()
-                    var eth_id = Number(task_queue[0].offerId)
-                    var eth_location = Number(task_queue[0].location)
-                    eth_data.id = eth_id
-                    eth_data.location = eth_location
-                    state_eth.edit_eth = true
-                    await task_queue.shift()
-                    await delay(1000)
-                    await save_data_to_JSON_file()
-                    await save_Offer_to_JSON_file()
-                    console.log("task done")
+                    await moveToResetLocation();
+                    let eth_id = Number(task_queue[0].offerId);
+                    let eth_location = Number(task_queue[0].location);
+                    eth_data.id = eth_id;
+                    eth_data.location = eth_location;
+                    state_eth.edit_eth = true;
+                    await task_queue.shift();
+                    await delay(1000);
+                    await saveDataToJSONFile();
+                    await saveOfferToJSONFile();
+                    console.log("task done");
                 }
             }
+        } else {
+            await task_queue.shift();
+            console.log("Invalid task");
         }
-        else {
-            await task_queue.shift()
-            console.log("Invalid task")
-        }
-
-
-    }
-    else {
-        console.log("No task in queue")
+    } else {
+        console.log("No task in queue");
     }
 }
 
-module.exports = { robot_auto, T_to_R, R_to_S ,eth_data,state_eth}
+module.exports = {processTask, moveFromLoadLocationToReceiveBuffer, moveFromReceiveBufferToDockLocation, eth_data, state_eth};

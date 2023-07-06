@@ -8,7 +8,7 @@
     "mustache": "^4.2.0",
     "nodemon": "^2.0.20",
     "puppeteer": "^19.2.2",
-    "socket.io": "^4.5.3"
+    "socket.io": "^4.6.2"
   },
   "name": "warehouseapp",
   "version": "1.0.0",
