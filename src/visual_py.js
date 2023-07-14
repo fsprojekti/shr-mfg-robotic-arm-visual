@@ -16,10 +16,18 @@ const getId = async () => {
 
 // get coordinate center ellipse and his area size
 const getImageDataPy = async () => {
-    await downloadImage(url, file_path);
+    console.log("downloading image ...");
+    await downloadImage();
+    console.log("new image downloaded");
     await delay(500);
     return new Promise((resolve) => {
         exec('python visual.py', async (error, stdout) => {
+            if(error)
+                console.log(error)
+            if(stdout) {
+                console.log("call to python visual.py successful");
+                console.log(stdout)
+            }
             resolve(stdout);
         })
     })
@@ -27,9 +35,13 @@ const getImageDataPy = async () => {
 
 // parse data from python script
 const imageProcessingPy = async () => {
+    console.log("starting imageProcessing...");
     let data = 0;
+    console.log("get image data");
     await getImageDataPy().then(d => {
         data = JSON.parse(d);
+        console.log("image data:" );
+        console.log(data);
     }).catch(error => {
         console.error(error);
     })
@@ -37,7 +49,7 @@ const imageProcessingPy = async () => {
     if (data !== undefined) {
         return data;
     } else {
-        return console.log("Package not find");
+        return console.log("Package not found");
     }
 }
 
@@ -45,12 +57,14 @@ const imageProcessingPy = async () => {
 const calculateHeightPy = async () => {
     let S;
     S = await imageProcessingPy();
+    console.log("value returned from imageProcessingPy");
     console.log(S);
     await delay(1000);
+    console.log("S parameter of the value returned from imageProcessingPy");
     console.log(S.S);
     return (S.S);
 }
-// calculate number of packages in the dock under the camera
+// calculate number of packages in the dock under the camera (based on the area size of the package as detected by the camera)
 const getNumberOfPackagesPy = async (S) => {
     if (S >= 47555.8 * 0.95 && S <= 47555.8 * 1.05) {
         return 1;
@@ -63,19 +77,22 @@ const getNumberOfPackagesPy = async (S) => {
     } else if (S >= 82578.91 * 0.95 && S <= 82578.91 * 1.05) {
         return 5;
     } else {
-        return console.log("package not find");
+        return console.log("package not found");
     }
 }
 
 //calculate dx and dy to move robot
 const getCenterPy = async (k = 0.305) => {
     let current_x = 0, current_y = 0, o;
+    console.log("getting robot arm state ...");
     await getState((d) => {
         //console.log(d)
         //console.log(state_data)
         current_x = d.x
         current_y = d.y
+        console.log("current robotic arm state" + JSON.stringify(d))
     })
+
     await delay(200);
 
     o = Math.atan(current_y * -1 / current_x);

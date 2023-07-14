@@ -91,13 +91,13 @@ function delay(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-//Move to load_location
+//move to load_location
 const moveToLoadLocation = async (z = 100) => {
     await moveTo(load_location.x, load_location.y, z);
     await delay(2000);
 }
 
-//Move to dispatch buffer
+//move to dispatch buffer
 const moveToDispatchBuffer = async (mode) => {
     let z;
     //when robot arm has package on suction

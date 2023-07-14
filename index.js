@@ -3,7 +3,8 @@ const path = require("path");
 const socketio = require("socket.io");
 const http = require("http");
 const {moveTo, suction, getState} = require("./src/httpAPI");
-const circle = require("./src/visual");
+// const circle = require("./src/visual");
+const {getCenterPy} = require("./src/visual_py");
 const {dock_location} = require("./src/location");
 const {processTask, state_eth, eth_data} = require("./src/motion");
 // const {processTask} = require("./src/motion");
@@ -91,7 +92,7 @@ io.on("connection", async (socket) => {
     // get center package
     socket.on("img_proces", async (callback) => {
         console.log("img_process request received");
-        await circle.getCenter();
+        await getCenterPy();
         await socket.emit("proces_done", "Done");
         callback();
     })

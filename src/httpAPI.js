@@ -2,7 +2,7 @@ const http = require("http");
 const config = require("../config.json");
 const axios = require("axios");
 
-// call API MoveTo
+// call API moveTo
 const moveTo = async (x, y, z) => {
     const req = http.request({
         hostname: config.roboticArmIpAddress,
@@ -19,12 +19,12 @@ const moveTo = async (x, y, z) => {
     });
     req.on("error", err => {
         console.log("error calling moveTo API");
-        // console.log(err);
+        console.log(err);
         console.log(req.path);
     })
     req.end();
 }
-// call API Move
+// call API move
 const move = async (x, y, z) => {
     const req = http.request({
         hostname: config.roboticArmIpAddress,
@@ -41,7 +41,7 @@ const move = async (x, y, z) => {
     });
     req.on("error", err => {
         console.log("error calling move API");
-        // console.log(err);
+        console.log(err);
         console.log(req.path);
     })
     req.end()
@@ -63,25 +63,23 @@ const suction = async (state) => {
     });
     req.on("error", err => {
         console.log("error calling suction API");
-        // console.log(err);
+        console.log(err);
         console.log(req.path);
     })
     req.end()
-
 }
 // call API getState
 const getState = async (cb) => {
     // call /basic/state API endpoint
     axios.get('http://' + config.roboticArmIpAddress + ':' + config.port + '/basic/state')
         .then(async function (response) {
-            //console.log("/basic/state response received, data:" + JSON.stringify(response.data));
+            // console.log("/basic/state response received, data:" + JSON.stringify(response.data));
             await cb(response.data);
         })
         .catch(function (error) {
             console.error("Error calling /basic/state API endpoint.");
-            // console.error(error);
+            console.error(error);
         })
-
 }
 
 module.exports = {moveTo, move, suction, getState};

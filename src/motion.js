@@ -26,27 +26,37 @@ const moveFromLoadLocationToReceiveBuffer = async (offer_id) => {
     let at_id, n_p, S;
     let dx1, dy1, dx, dy;
     // move to location to fetch package
+    console.log("moving to load location ... ");
     await moveToLoadLocation(200);
     // calculate dx and dy needed to move robot to collinear center camera and package center in z coordinate
+    console.log("getting package center ...");
     await getCenterPy().then((data) => {
         dx1 = data.x
         dy1 = data.y
     });
+    console.log("package center: ");
+    console.log(dx1 + ", " + dy1)
+    console.log("relative move to correct the position of the robot arm ...");
     await move(dx1, dy1, 0)
+    await delay(1000);
     //get area size ellipse twice,
     //for solution afterimage image
-    await calculateHeightPy();
+    console.log("calculating height...");
+    // await calculateHeightPy();
     S = await calculateHeightPy();
+    console.log("value returned from calculateHeightPy: ");
     console.log(S);
     // get number of packages in load location
     try {
+        console.log("get number of packages in the dock (based on the \"height\" od the dock that is represented with the area size of the package ..." );
         n_p = await getNumberOfPackagesPy(S);
+        console.log(n_p);
     } catch (e) {
         console.log(e);
     }
-    console.log("Package Height:", n_p)
+    console.log("package height:", n_p)
     if (n_p === undefined || n_p === 0) {
-        return console.log("Package not find");
+        return console.log("package not found");
     }
     // add new offer
     try {
@@ -59,15 +69,18 @@ const moveFromLoadLocationToReceiveBuffer = async (offer_id) => {
         let h = (200 - (n_p - 1) * package_height);
         // its height to need on top of package for calculate dx and dy
         let s = (h - 100) * -1;
+        console.log("move to the height where offset for package center will be calculated ...");
         await move(0, 0, s);
         await delay(1500);
         // calculate just first time in task
         if (c === 0) {
+            console.log("get current center ...");
             await getCenterPy(0.17).then(d => {
                 dx = d.x;
                 dy = d.y;
                 c++;
             })
+            console.log("move the robot arm to the center of the package ...");
             await move(dx, dy, 0);
             await delay(1000);
             //save abs. coordinate
@@ -75,25 +88,35 @@ const moveFromLoadLocationToReceiveBuffer = async (offer_id) => {
             absy = -135 + dy1 + dy;
         }
         //get apriltag id
+        console.log("get aprilTag id ...");
         at_id = await getId();
         //offset suction and camera
+        console.log("move robotic arm to consider the offset between the camera and the suctionc cup ...");
         await circle.offsetToll();
         await delay(1500);
         console.log("package Id:", Number(at_id));
+        console.log("move down 35 mm ...");
         await move(0, 0, -35);
         await delay(1500);
+        console.log("suction on ...");
         await suction(true);
         await delay(1500);
+        console.log("move up 60 mm ...");
         await move(0, 0, 60);
         await delay(1500);
         //move to receive buffer
+        console.log("move to receive buffer ...");
         await moveToReceiveBuffer("load");
+        console.log("move down 20 mm ...");
         await move(0, 0, -20);
         await delay(1000);
+        console.log("suction f ...");
         await suction(false);
         await delay(2000);
+        console.log("move up 60 mm ...");
         await move(0, 0, 60);
         await delay(1500);
+        console.log("check if there is more than 1 package in the load location ...");
         if (n_p !== 1) {
             await moveTo(absx, absy, 200);
             await delay(1500);
@@ -184,7 +207,8 @@ const moveFromDispatchBufferToUnloadLocation = async () => {
 const processTask = async () => {
     if (task_queue[0] !== undefined) {
         if (task_queue[0].mode === "load") {
-            // Move package from transport car to receive buffer
+            // move package from transport car to receive buffer
+            console.log("moving from load location to receive buffer ...");
             let step1 = await moveFromLoadLocationToReceiveBuffer(Number(task_queue[0].offerId));
             if (step1 !== 1) {
                 return console.log("Step 1 error.");
