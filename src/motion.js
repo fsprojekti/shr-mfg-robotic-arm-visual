@@ -64,8 +64,9 @@ const moveFromLoadLocationToReceiveBuffer = async (offer_id) => {
     } catch (e) {
     }
     let c = 0;
+    let absx, absy;
     for (n_p; n_p >= 1; n_p--) {
-        let absx, absy;
+
         let h = (200 - (n_p - 1) * package_height);
         // its height to need on top of package for calculate dx and dy
         let s = (h - 100) * -1;
@@ -86,12 +87,15 @@ const moveFromLoadLocationToReceiveBuffer = async (offer_id) => {
             //save abs. coordinate
             absx = 135 + dx1 + dx;
             absy = -135 + dy1 + dy;
+            console.log("absolute coordinates for the first package in load location: " + absx + ", " + absy);
         }
+        console.log("absolute coordinates for the next package in load location: " + absx + ", " + absy);
         //get apriltag id
         console.log("get aprilTag id ...");
         at_id = await getId();
+        console.log("aprilTag id: " + at_id);
         //offset suction and camera
-        console.log("move robotic arm to consider the offset between the camera and the suctionc cup ...");
+        console.log("move robotic arm to consider the offset between the camera and the suction cup ...");
         await circle.offsetToll();
         await delay(1500);
         console.log("package Id:", Number(at_id));
@@ -110,7 +114,7 @@ const moveFromLoadLocationToReceiveBuffer = async (offer_id) => {
         console.log("move down 20 mm ...");
         await move(0, 0, -20);
         await delay(1000);
-        console.log("suction f ...");
+        console.log("suction off ...");
         await suction(false);
         await delay(2000);
         console.log("move up 60 mm ...");
@@ -118,6 +122,8 @@ const moveFromLoadLocationToReceiveBuffer = async (offer_id) => {
         await delay(1500);
         console.log("check if there is more than 1 package in the load location ...");
         if (n_p !== 1) {
+            console.log("there is still some package in the load location");
+            console.log("move to: " + absx + ", " + absy + ", " + 200);
             await moveTo(absx, absy, 200);
             await delay(1500);
         }
@@ -213,9 +219,14 @@ const processTask = async () => {
             if (step1 !== 1) {
                 return console.log("Step 1 error.");
             }
+            else {
+                console.log("Step 1: " + step1);
+            }
 
             // move package from receive buffer to dock
+            console.log("moving from receive buffer to dock location ...");
             await moveFromReceiveBufferToDockLocation(Number(task_queue[0].offerId));
+            console.log("moving to reset location ...");
             await moveToResetLocation();
             //remove task from task queue 
             let id = Number(task_queue[0].offerId);

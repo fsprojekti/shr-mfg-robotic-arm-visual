@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 import math
 import json
+
 #get image data
 image =cv2.imread("./public/image/input.jpg") # do 5 kosov visoka
 #create image for display output
@@ -17,9 +18,9 @@ Center = []
 gaussian = cv2.GaussianBlur(img, (13,13),2)
 #find contour/edges
 edges = cv2.Canny(gaussian,10,50,apertureSize=3)
-#filtering interference / useless edges
+# filtering interference / useless edges
 ret,thresh = cv2.threshold(edges,200,255,cv2.THRESH_BINARY)
-#save contour / edges to array
+# save contour / edges to array
 contours, hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
 # for every saved contours, get its area size and find ellipse area.
 for cnt in contours:
@@ -32,23 +33,27 @@ for cnt in contours:
             if(S2 > S1):
                 S.append(S2)
                 Center.append(ell[0])
-#save max. area and his coordinate to object data
+# save max. area and his coordinate to object data
 data_json = {
     "x_c" : Center[S.index(max(S))][0],
     "y_c" : Center[S.index(max(S))][1],
     "S" : max(S)
 }
-#transform object data to json data and print in console
+# transform object data to json data and print in console
 if (S and Center) is not None:
     print(json.dumps(data_json))
 else:
     print(ValueError)
 
 # show the output image 
-cv2.imshow("edges",edges)
-cv2.imshow("o",img)
-cv2.imshow("edges - threshold",thresh)
-cv2.imshow("output",output)
+# cv2.imshow("edges",edges)
+
+cv2.imwrite("./public/image/ellipses.jpg", img)
+cv2.imwrite("./public/image/edges.jpg", thresh)
+
+# cv2.imshow("o",img)
+# cv2.imshow("edges - threshold",thresh)
+# cv2.imshow("output",output)
 cv2.waitKey(0)
 
 

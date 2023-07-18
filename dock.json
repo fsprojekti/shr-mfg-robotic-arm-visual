@@ -1,10 +1,57 @@
-{"dock_location1":{"x":-150,"y":75,"storage":[0]},
-  "dock_location2":{"x":-150,"y":0,"storage":[4,5]},
-  "dock_location3":{"x":-150,"y":-75,"storage":[]},
-  "dock_location4":{"x":-150,"y":-150,"storage":[]},
-  "receive_buffer":{"x":0,"y":-160,"storage":[]},
-  "dispatch_buffer":{"x":125,"y":0,"storage":[]},
-  "load_location":{"x":135,"y":-135},
-  "unload_location":{"x":200,"y":0,"storage":[]},
-  "reset_location":{"x":0,"y":-100,"z":200},
-  "package_height": 10.6}
+{
+  "dock_location1": {
+    "x": -150,
+    "y": 75,
+    "storage": [
+      0
+    ]
+  },
+  "dock_location2": {
+    "x": -150,
+    "y": 0,
+    "storage": [
+      4,
+      5
+    ]
+  },
+  "dock_location3": {
+    "x": -150,
+    "y": -75,
+    "storage": []
+  },
+  "dock_location4": {
+    "x": -150,
+    "y": -150,
+    "storage": []
+  },
+  "receive_buffer": {
+    "x": 0,
+    "y": -160,
+    "storage": [
+      27,
+      9,
+      25,
+      16
+    ]
+  },
+  "dispatch_buffer": {
+    "x": 125,
+    "y": 0,
+    "storage": []
+  },
+  "load_location": {
+    "x": 135,
+    "y": -135
+  },
+  "unload_location": {
+    "x": 200,
+    "y": 0,
+    "storage": []
+  },
+  "reset_location": {
+    "x": 0,
+    "y": -100,
+    "z": 200
+  },
+  "package_height": 10.6
+}

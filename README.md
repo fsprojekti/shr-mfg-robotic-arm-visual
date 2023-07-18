@@ -2,89 +2,102 @@
 
 V Raspberry Pi
 ------------------------------------------------------
+
 1. poglej IP naslov --> if config
-2. zaustavljati delovanje server v robot --> v terminal : "pm2 stop 0"  !!!
-3. zaženi index.js pod mapa shr-mfg-robotic-arm-http-server --> node index.js  !!!
+2. zaustavljati delovanje serverja v robotu --> v terminalu : "pm2 stop 0"  !!!
+3. zaženi index.js v mapi shr-mfg-robotic-arm-http-server --> node index.js  !!!
 
 V svoj PC
- ----------------------------------------------------
-1. spremeniti IP nalsov v config.json !!!
+----------------------------------------------------
+
+1. spremeniti IP naslov v config.json !!!
 2. start nodejs program -- node index.js
 3. z vnosom v brskalnik: localhost:3000
-4. start gumb za avtomatsko delovanje, stop gumb za ustavljanje avtomatsko delovanje, ostale gumba so za testiranje kode oz. ročno upravljanje
+4. start gumb za avtomatsko delovanje, stop gumb za ustavljanje avtomatskega delovanja, ostali gumbi so za testiranje
+   kode oz. ročno upravljanje
 
 ## shema
-![image](public/image/schema.PNG)
 
+![image](public/image/schema.PNG)
 
 ## HTTP API :
 
-|API|parameter|return|
-|---|---|---
-|`/dispatch`|mode(obvezna),OfferId(obvezna),locattion(obvezna za relocation)| accept / error
-|`/dock`|location,level |JSON object:podatke o shranjene paket
-|`/task`|/|JSON object: vse naloga v čakalna vrsta
-|`/offer`|/|JSON object: vse podatke shranjeni offer
+| API         | parameter                                                      | return                                        |
+|-------------|----------------------------------------------------------------|-----------------------------------------------
+| `/dispatch` | mode(obvezna),OfferId(obvezna),location(obvezna za relocation) | accept / error                                
+| `/dock`     | location,level                                                 | JSON object:podatki o shranjenem paketu       
+| `/task`     | /                                                              | JSON object: vse naloge v čakalni vrsti       
+| `/offer`    | /                                                              | JSON object: vsi podatki o shranjenen offerju 
 
+### `/dock`
 
-### `/dock`               
-* če ni parameter, vrne podatke o vse shranjene paket v json.file
-* če je samo location nastavljena(1-4), potem prikaži podatke o shranjevanje paket tistem lokacija.
-* če je oba parameter nastavljena, prikaži določeni lokacija in določeni stolpec
-                                        
-### `/task` 
-* JSON object : vse naloga v čakalna vrsta
-### `/offer` 
+* če ni parametra, vrne podatke o vseh shranjenih paketih v json.file
+* če je samo location nastavljen (1-4), potem prikaže podatke o shranjenem paketu na tisti lokaciji.
+* če sta oba parametra nastavljena, prikaže določeno lokacijo in določeni stolpec
+
+### `/task`
+
+* JSON object : vse naloge v čakalni vrsti
+
+### `/offer`
+
 * JSON object : Offer{id, location, package ID[]}
 
-### `/dispatch`       
-|mode|OfferId|location|
-|---|---|---
-|"unload", "load", "relocation"|`__NUMBER__`|`_1-4_`
+### `/dispatch`
+| mode                           | OfferId      | location |
+|--------------------------------|--------------|----------
+| "unload", "load", "relocation" | `__NUMBER__` | `_1-4_`  
 
-#### load (robot shrani paket iz transport v skladišče)
-* če je parameter pravilno nastavljen, naloga se vstavi v čakalni vrsto.
-* naloga se izvaja po vrstni redu po čakalni vrsto.
-* robot približa mesto, ki odloži paket oz. mesto, ki čaka transportni robot.
-* robot izračuna kordinat center paket (robot se zaznava samo krožni površina, ni sem uporabil April tag)
-* robot premakne na mesto tako, da bo center kamera po z os kolinealna center paket.
-* robot izračuna koliko paket je pod kamera
-* robot skenira apritag ID
-* robot naredi offset od kamera do središče orodja(pnevmatski sesalec).
-* robot pobira paket in ga shrani v receive buffer
-* * robot postopek ponavlja za vse paket
-* robot pobira paket iz receive buffer in ga premakne na dock.
-* lokacija shranjevanje se izbre na mesto, ki ima najmanj shranjen paket.
-* * postopek ponavlja za vse paket v receive buffer
-* podatke ID offer, lokacija shranjevanje in vse ID paket v tem offer se shrani v json file v offer.json
-* podatke dock.json je shranjena ID paket v posamezni lokacija dock. 
-* robot vrne na izhodiščni lega.
+#### load (robot shrani paket iz transporta v skladišče)
+
+* če je parameter pravilno nastavljen, se naloga vstavi v čakalno vrsto.
+* naloga se izvaja po vrstnem redu po čakalni vrsti.
+* robot približa mesto, kjer odloži paket oz. mesto, kjer čaka transportni robot.
+* robot izračuna kordinate centra paketa (robot zaznava samo krožno površino, nisem uporabil April tag)
+* robot premakne na mesto tako, da bo center kamere po z osi kolinearen centru paket.
+* robot izračuna kako daleč je paket pod kamero
+* robot skenira apriltag ID
+* robot naredi offset od kamere do središča orodja (pnevmatski sesalec).
+* robot pobere paket in ga shrani v receive buffer
+*
+    * robot postopek ponavlja za vse pakete
+* robot pobira pakete iz receive buffer in jih premakne na dock.
+* lokacija shranjevanja se izbere na mesto, ki ima najmanj shranjenih paketov.
+*
+    * postopek ponavlja za vse pakete v receive buffer
+* podatke ID offer, lokacija shranjevanja in vse ID pakete v tem offerju se shrani v json file v offer.json
+* v dock.json so shranjeni ID paketov v posamezni lokaciji ( dock.)
+* robot se vrne na izhodiščno lego.
 * primer: `http://localhost:3000/dispatch?OfferId=1&mode=load`
 
-#### unload (robot oddaja paket iz skladišče v transport)
+#### unload (robot odda paket iz skladišča v transport)
+
 * če je parameter pravilno nastavljen, program preveri kje je shranjen vnešeni offer
 * če nikjer ne najde, vrne napka
-* če je najdu, vstavi naloga v čakalni vrsto
-* če je na vrst naloga, robot približa na mesto,kjer shranjeni paket.
-* če je zadnja paket iz želenega offer leži na najviši stopnja, ga vzame in premakne v območje, ki odloži paket oz. transportni robot, ki čaka za sprejet paket
-* če leži pod drugim paket, vse paket, ki je nad želeni paketi, ga žačasno premaknemo.
-* nato želeni paket premakne za odlož.
-* začasno premaknjeni paket nazaj shranimo v mesto, ki je bil prej shranjen.
-* po končanje naloga se izbriše tistega offer iz json datoteka.
-* robot vrne na izhodiščni lega.
+* če najde, vstavi nalogo v čakalno vrsto
+* če je na vrsti naloga, se robot približa na mesto, kjer je shranjen paket.
+* če zadnji paket iz želenega offerja leži na najvišji stopnji, ga vzame in premakne v območje, kjer odloži paket oz. na
+  transportni robot, ki čaka za sprejetje paketa
+* če leži pod drugim paketom, vse pakete, ki so nad želenim paketom, začasno premaknemo.
+* nato želeni paket premakne za odložitev.
+* začasno premaknjeni paket premaknemo nazaj na mesto, kjer je bil prej shranjen.
+* po končanju naloge se izbriše offer iz json datoteke.
+* robot se vrne na izhodiščno lega.
 * primer: `http://localhost:3000/dispatch?OfferId=1&mode=unload`
 
 #### relocation
-* od razlika od drugi način delovanje je obvezno nastaviti "location", kot novo mesto shranjevanje.
-* delovanje je podobna pri "unload"
-* Robot premakne vse paket iz želenega offer na novi lokacija.
+
+* za razliko od drugega načina delovanja je obvezno nastaviti "location" kot novo mesto shranjevanja.
+* delovanje je podobna kot pri "unload"
+* robot premakne vse pakete iz želenega offerja na novo lokacijo.
 * primer: `http://localhost:3000/dispatch?OfferId=1&mode=relocation&location=2`
 
 # Pametna pogodba
-pametna pogodba je razporejena v goerli testna stran z metamask preko remix.
-Za povezava aplikacija in ethereum je uporabljana ethers.js v brskalnik.
-V Pametna pogodba so funkcija:
-* `getPackage(int id_offer)` ==> za pogled vse paket ID v istega ID ofer.
-* `addOffer(int id_offer,int lokacija_shranjevanje,array [paket ID])` ==> za dodajanje novi Offer.
-* `changeLocation(int id_offer,int lokacija)` ==> za spremenba lokacija shranjevanje offer.
-* `removeOffer(int id)` ==> izbriše Offer.
+
+Pametna pogodba je razporejena v goerli testno stran z metamask preko remix. Za povezavo aplikacije in ethereuma je
+uporabljena ethers.js v brskalniku.
+V pametni pogodbi so funkcije:
+* `getPackage(int id_offer)` ==> za pogled vseh ID-jev v Offerju.
+* `addOffer(int id_offer,int lokacija_shranjevanje,array [paket ID])` ==> za dodajanje novega Offerj.
+* `changeLocation(int id_offer,int lokacija)` ==> za spremembo lokacije shranjevanja Offerja.
+* `removeOffer(int id)` ==> izbri Offerja.

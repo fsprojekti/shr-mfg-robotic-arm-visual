@@ -6,7 +6,7 @@ const {moveTo, suction, getState} = require("./src/httpAPI");
 // const circle = require("./src/visual");
 const {getCenterPy} = require("./src/visual_py");
 const {dock_location} = require("./src/location");
-const {processTask, state_eth, eth_data} = require("./src/motion");
+const {processTask} = require("./src/motion");
 // const {processTask} = require("./src/motion");
 const {task_queue, dispatch} = require("./src/task");
 const {offer} = require("./offer");
@@ -83,6 +83,7 @@ io.on("connection", async (socket) => {
 
     // on off suction
     socket.on("suction", (message, callback) => {
+        console.log("suction request received");
         suction_state = message;
         console.log("suction:", suction_state.toString());
         suction(suction_state);
@@ -93,7 +94,7 @@ io.on("connection", async (socket) => {
     socket.on("img_proces", async (callback) => {
         console.log("img_process request received");
         await getCenterPy();
-        await socket.emit("proces_done", "Done");
+        await socket.emit("process_done", "Done");
         callback();
     })
 
@@ -119,10 +120,11 @@ io.on("connection", async (socket) => {
 // HTTP API get package data in any location
 app.get(`/dock`, (req, res) => {
     console.log("received a request to the /dock API");
+    console.log(req.query);
     if (!req.query.address || req.query.address > 4) {
         console.log("missing address or address out of range");
         return res.send(dock_location)
-    } else if (req.query.address !== undefined && req.query.level === undefined) {
+    } else if (req.query.level === undefined) {
         console.log("missing level, printing the whole dock");
         res.send(dock_location[req.query.address]);
     } else if (req.query.address !== undefined && req.query.level !== undefined) {
@@ -134,6 +136,9 @@ app.get(`/dock`, (req, res) => {
         console.log("address and level data ok");
         // console.log(dock_location[req.query.address].storage[req.query.level - 1]);
         res.send(dock_location[req.query.address].storage[req.query.level - 1].toString());
+    }
+    else {
+        console.error("something is wrong");
     }
 })
 
@@ -185,21 +190,21 @@ setInterval(async () => {
             // console.log("state of add:", state_eth.add_eth);
             // check queue for awaiting tasks and process the first one
             await processTask();
-            console.log("state_eth:", state_eth.add_eth);
-            console.log(eth_data);
-            if (state_eth.add_eth === true) {
-                io.emit("addOffer", eth_data)
-                // console.log(eth_data);
-                state_eth.add_eth = false;
-            }
-            if (state_eth.remove_eth === true) {
-                io.emit("removeOffer", eth_data);
-                state_eth.remove_eth = false;
-            }
-            if (state_eth.edit_eth === true) {
-                io.emit("editOffer", eth_data);
-                state_eth.edit_eth = false;
-            }
+            // console.log("state_eth:", state_eth.add_eth);
+            // console.log(eth_data);
+            // if (state_eth.add_eth === true) {
+            //     io.emit("addOffer", eth_data)
+            //     // console.log(eth_data);
+            //     state_eth.add_eth = false;
+            // }
+            // if (state_eth.remove_eth === true) {
+            //     io.emit("removeOffer", eth_data);
+            //     state_eth.remove_eth = false;
+            // }
+            // if (state_eth.edit_eth === true) {
+            //     io.emit("editOffer", eth_data);
+            //     state_eth.edit_eth = false;
+            // }
             robot_running = false;
         }
     }

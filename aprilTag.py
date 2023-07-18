@@ -12,6 +12,10 @@ gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 # create apriltag detector for families tag36h11
 at_detector = apriltag.Detector(families='tag36h11')
 # detect apriltag in image.
-tags = at_detector.detect(gray)
-# show detected elemnt
-print(tags[0].tag_id)
+tags = at_detector.detect(gray, tag_size='33.3')
+# print(tags)
+# show detected element
+try:
+    print(tags[0].tag_id)
+except IndexError as ie:
+    raise IndexError

@@ -45,7 +45,22 @@ const saveDataToJSONFile = async () => {
             x: dispatch_buffer.x,
             y: dispatch_buffer.y,
             storage: dispatch_buffer.storage
-        }
+        },
+        load_location: {
+            x: load_location.x,
+            y: load_location.y
+        },
+        unload_location: {
+            x: unload_location.x,
+            y: unload_location.y,
+            storage: unload_location.storage
+        },
+        reset_location: {
+            x: reset_location.x,
+            y: reset_location.y,
+            z: reset_location.z
+        },
+        package_height: package_height
     };
     let save_data = JSON.stringify(dock);
     fs.writeFileSync(dock_file_path, save_data);

@@ -7,9 +7,18 @@ const exec = require('child_process').exec;
 const getId = async () => {
     await downloadImage(url, file_path);
     await delay(500);
+    console.log("calling python aprilTag.py ...");
     return new Promise((resolve) => {
         exec('python aprilTag.py', async (error, stdout) => {
-            resolve(stdout);
+            if(error) {
+                console.error(error)
+                resolve(error);
+            }
+            else {
+                console.log(stdout);
+                resolve(stdout);
+            }
+
         })
     })
 }
@@ -90,12 +99,17 @@ const getCenterPy = async (k = 0.305) => {
         //console.log(state_data)
         current_x = d.x
         current_y = d.y
-        console.log("current robotic arm state" + JSON.stringify(d))
+        console.log("current robotic arm state: " + JSON.stringify(d))
     })
 
-    await delay(200);
+    await delay(500);
+
+    console.log("get aprilTag id ...");
+    let at_id = await getId();
+    console.log("aprilTag id: " + at_id);
 
     o = Math.atan(current_y * -1 / current_x);
+    console.log(o);
 
     let center = await imageProcessingPy();
     console.log("center_pixel：" + JSON.stringify(center));
